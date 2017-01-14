@@ -1,0 +1,27 @@
+{
+  "name": "d20-engine",
+  "main": "dist/script.js",
+  "moduleType": "globals",
+  "ignore": [
+    "node_modules",
+    "**/.*",
+    "bower_components",
+    "test"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adamrpc/d20-engine.git"
+  },
+  "dependencies": {
+    "angular": "^1.4.0",
+    "angular-route": "^1.4.0",
+    "lodash": "^4.13.1"
+  },
+  "devDependencies": {
+    "angular-mocks": "^1.4.0"
+  },
+  "appPath": "app",
+  "resolutions": {
+    "angular": "^1.4.0"
+  }
+}
