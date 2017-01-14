@@ -1,6 +1,6 @@
 {
   "name": "d20-engine",
-  "main": "dist/script.js",
+  "main": "dist/d20-engine.js",
   "moduleType": "globals",
   "ignore": [
     "node_modules",
