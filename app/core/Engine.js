@@ -27,21 +27,26 @@ angular.module( 'd20-engine' ).factory( 'Engine', function( $log ) {
     });
   };
   Engine.prototype.compute = function(currentValue, operator, value, min, max) {
+    var rolled = this.roll( value );
     switch( operator ) {
       case '-':
-        currentValue -= this.roll( value );
+        currentValue -= rolled;
         break;
       case '+':
-        currentValue += this.roll( value );
+        currentValue += rolled;
         break;
       case '*':
-        currentValue *= this.roll( value );
+        currentValue *= rolled;
         break;
       case '/':
-        currentValue /= this.roll( value );
+        if( rolled === 0 ) {
+          $log.warn( 'Engine.compute called with bad value for operator /', value );
+          return currentValue;
+        }
+        currentValue /= rolled;
         break;
       case '=':
-        currentValue = this.roll( value );
+        currentValue = rolled;
         break;
       default:
         $log.warn( 'Engine.compute called with bad operator', operator );
@@ -60,8 +65,15 @@ angular.module( 'd20-engine' ).factory( 'Engine', function( $log ) {
       $log.warn('Engine.roll called without parameter, returning 0');
       return 0;
     }
-    var parts = dices.split('d');
-    if(parts.length === 0 || parts.length > 2 || !_.isNumber(parts[0]) || !_.isNumber(parts[1])) {
+    var parts = [];
+    if( dices.split ) {
+      _.forEach(dices.split('d'), function(value) {
+          parts.push( !isNaN(value) ? parseFloat(value) : null);
+      });
+    } else {
+      parts.push( parseFloat(dices) );
+    }
+    if(parts.length === 0 || parts.length > 2 || !_.isNumber(parts[0]) || (parts.length > 1 && !_.isNumber(parts[1]))) {
       $log.warn('Engine.roll called with bad parameter, returning 0', dices);
       return 0;
     }

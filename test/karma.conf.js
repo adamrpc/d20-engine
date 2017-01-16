@@ -25,7 +25,8 @@ module.exports = function(config) {
       'bower_components/lodash/lodash.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
-      'app/scripts/**/*.js',
+      'app/d20-engine.js',
+      'app/**/*.js',
       'test/mock/**/*.js',
       'test/spec/**/*.js'
     ],
@@ -55,7 +56,7 @@ module.exports = function(config) {
       'karma-spec-reporter',
       'karma-jasmine'
     ],
-    
+
     reporters: ['spec'],
     specReporter: {
         maxLogLines: 10,         // limit number of lines logged per test
