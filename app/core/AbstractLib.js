@@ -43,7 +43,7 @@ angular.module( 'd20-engine' ).factory( 'AbstractLib', function( $log, Engine ) 
       return null;
     }
     var parts = change.split(/[-+*/=]/);
-    var operator = change.substring(parts[ 0 ].length, parts[ 0 ].length + 1);
+    var operator = parts.length > 0 ? change.substring(parts[ 0 ].length, parts[ 0 ].length + 1) : null;
     if(parts.length !== 2 || parts[0] === '' || parts[1] === '' || !_.includes(['-', '+', '*', '/', '='], operator)) {
       $log.warn('AbstractLib.changeStat called with bad change parameter', change);
       return null;
