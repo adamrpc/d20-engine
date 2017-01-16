@@ -87,8 +87,9 @@ angular.module( 'd20-engine' ).factory( 'Engine', function( $log ) {
     return result;
   };
   var EngineProxy = new Proxy( Engine, {
-    construct: function( Target ) {
-      return new Proxy( new Target(), {
+    construct: function( Target, argumentsList ) {
+      var newTarget = Object.create(Target.prototype);
+      return new Proxy( Target.apply(newTarget, argumentsList) || newTarget, {
         get: function( target, name ) {
           if(_.has(target.prototype, name)) {
             return target.prototype[name];
