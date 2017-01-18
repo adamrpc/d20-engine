@@ -1,5 +1,5 @@
 'use strict';
 
-angular.module( 'd20-engine' ).factory( 'StatLib', function( AbstractLib ) {
-  return new AbstractLib( 'stat' );
+angular.module( 'd20-engine' ).factory( 'StatLib', function( AbstractStatLib ) {
+  return new AbstractStatLib( 'stat' );
 });

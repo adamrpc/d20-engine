@@ -11,8 +11,8 @@ describe('Factory: AbstractLib', function() {
   beforeEach(module(function ($provide) {
     $provide.value('Engine', engine);
   }));
-  beforeEach( inject( function( AbstractLib ) {
-    abstractLib = AbstractLib;
+  beforeEach( inject( function( AbstractStatLib ) {
+    abstractLib = AbstractStatLib;
   } ) );
   it('Should changeValue', function() {
     spyOn(engine, 'registerLib');

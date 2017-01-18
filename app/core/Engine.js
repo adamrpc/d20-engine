@@ -10,6 +10,13 @@ angular.module( 'd20-engine' ).factory( 'Engine', function( $log ) {
     }
     this.registeredLibs[libName] = lib;
   };
+  Engine.prototype.init = function(libName, creature, phase) {
+    if(!this.registeredLibs[libName]) {
+      $log.warn('Lib ' + libName + ' not existing, changing nothing.');
+      return;
+    }
+    return this.registeredLibs[ libName ].init.apply(this.registeredLibs[ libName ], Array.prototype.slice.call(arguments, 1));
+  };
   Engine.prototype.change = function(libName, creature, changes) {
     if(!this.registeredLibs[libName]) {
       $log.warn('Lib ' + libName + ' not existing, changing nothing.');

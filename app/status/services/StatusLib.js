@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module( 'd20-engine' ).factory( 'StatusLib', function( $log, AbstractLib, Engine ) {
-  var StatusLib = angular.copy(AbstractLib);
-  angular.extend(StatusLib.prototype, AbstractLib.prototype);
+angular.module( 'd20-engine' ).factory( 'StatusLib', function( $log, AbstractStatLib, Engine ) {
+  var StatusLib = angular.copy(AbstractStatLib);
+  angular.extend(StatusLib.prototype, AbstractStatLib.prototype);
   StatusLib.prototype.changeValue = function(creature, change) {
     if(creature === undefined || change === undefined) {
       return null;
