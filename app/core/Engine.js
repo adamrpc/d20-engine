@@ -67,13 +67,18 @@ angular.module( 'd20-engine' ).factory( 'Engine', function( $log ) {
     }
     return currentValue;
   };
-  Engine.prototype.roll = function(dices) {
+  Engine.prototype.roll = function(dices, bestDices) {
     if(dices === undefined) {
       $log.warn('Engine.roll called without parameter, returning 0');
       return 0;
     }
     var parts = [];
     if( dices.split ) {
+      var rolls = dices.split(',');
+      if(rolls.length > 1) {
+        var that = this;
+        return rolls.map(function(value) { return that.roll(value, bestDices);});
+      }
       _.forEach(dices.split('d'), function(value) {
           parts.push( !isNaN(value) ? parseFloat(value) : null);
       });
@@ -87,11 +92,12 @@ angular.module( 'd20-engine' ).factory( 'Engine', function( $log ) {
     if(parts.length === 1) {
       return parts[0];
     }
-    var result = 0;
-    _.forEach(_.range(parts[0]), function() {
-      result += Math.random(1, parts[1] + 1);
-    });
-    return result;
+    if(bestDices === undefined) {
+      bestDices = parts[0];
+    }
+    return _.sum(_.sortBy(_.range(parts[0]).map(function() {
+      return Math.random(1, parts[1] + 1);
+    } ), function(value) { return value;} ).slice(Math.max(0, parts[0] - bestDices)));
   };
   var EngineProxy = new Proxy( Engine, {
     construct: function( Target, argumentsList ) {

@@ -38,6 +38,21 @@ describe('Factory: Engine', function() {
     expect(Math.random.calls.count()).toBe( 2 );
     expect(Math.random).toHaveBeenCalledWith( 1, 9 );
     Math.random.calls.reset();
+
+    expect(engine.roll( '4d8', 3 )).toBe( 24 );
+    expect(Math.random.calls.count()).toBe( 4 );
+    expect(Math.random).toHaveBeenCalledWith( 1, 9 );
+    Math.random.calls.reset();
+
+    expect(engine.roll( '4d8,3d8,2d8,1d8', 3 )).toEqual( [24, 24, 16, 8] );
+    expect(Math.random.calls.count()).toBe( 10 );
+    expect(Math.random).toHaveBeenCalledWith( 1, 9 );
+    Math.random.calls.reset();
+
+    expect(engine.roll( '4d8,3d8,2d8,1d8')).toEqual( [32, 24, 16, 8] );
+    expect(Math.random.calls.count()).toBe( 10 );
+    expect(Math.random).toHaveBeenCalledWith( 1, 9 );
+    Math.random.calls.reset();
   });
   it('Should define Engine.compute', function() {
     expect(engine.compute).toBeDefined();
