@@ -3,6 +3,7 @@
 angular.module( 'd20-engine' ).factory( 'Engine', function( $log ) {
   var Engine = function() {
     this.registeredLibs = {};
+    this.registeredLoaders = {};
   };
   Engine.prototype.registerLib = function(libName, lib) {
     if(!!this.registeredLibs[libName]) {
@@ -10,12 +11,18 @@ angular.module( 'd20-engine' ).factory( 'Engine', function( $log ) {
     }
     this.registeredLibs[libName] = lib;
   };
-  Engine.prototype.init = function(libName, creature, phase) {
-    if(!this.registeredLibs[libName]) {
-      $log.warn('Lib ' + libName + ' not existing, changing nothing.');
+  Engine.prototype.registerLoader = function(name, loader) {
+    if(!!this.registeredLoaders[name]) {
+      $log.warn('Loader ' + name + ' already defined, overwriting.', this.registeredLoaders[name], loader);
+    }
+    this.registeredLoaders[name] = loader;
+  };
+  Engine.prototype.load = function(name) {
+    if(!this.registeredLoaders[name]) {
+      $log.warn('Loader ' + name + ' not existing, loading nothing.');
       return;
     }
-    return this.registeredLibs[ libName ].init.apply(this.registeredLibs[ libName ], Array.prototype.slice.call(arguments, 1));
+    this.registeredLoaders[ name ].load.apply(this.registeredLoaders[ name ], Array.from(arguments).slice(1));
   };
   Engine.prototype.change = function(libName, creature, changes) {
     if(!this.registeredLibs[libName]) {

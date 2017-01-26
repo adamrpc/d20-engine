@@ -19,20 +19,32 @@ angular.module( 'd20-engine' ).factory( 'AbstractStatLib', function( $log, Engin
       that.changeValue(creature, value);
     });
   };
-  AbstractStatLib.prototype.prepareChange = function(creature, name, defaultValue) {
-    if(!creature[this.libName]) {
-      creature[this.libName] = {};
+  AbstractStatLib.prototype.prepareChange = function(creature, name, defaultValue, subName) {
+    if(!creature[this.id]) {
+      creature[this.id] = {};
     }
-    if(!creature[this.libName][name]) {
-      creature[this.libName][name] = defaultValue;
+    if(!creature[this.id][name] && !subName) {
+      creature[this.id][name] = defaultValue;
+    } else if(!creature[this.id][name] && subName) {
+      creature[this.id][name] = {};
+    }
+    if(subName && !creature[this.id][name][subName]) {
+      creature[this.id][name][subName] = defaultValue;
     }
     if(!creature.old) {
       creature.old = {};
     }
-    if(!creature.old[this.libName]) {
-      creature.old[ this.libName ] = {};
+    if(!creature.old[this.id]) {
+      creature.old[ this.id ] = {};
     }
-    creature.old[this.libName][name] = creature[this.libName][name];
+    if(!creature.old[this.id][name] && subName) {
+      creature.old[this.id][name] = {};
+    }
+    if(subName) {
+      creature.old[this.id][name][subName] = creature[this.id][name][subName];
+    } else {
+      creature.old[this.id][name] = creature[this.id][name];
+    }
   };
   AbstractStatLib.prototype.changeValue = function(creature, change) {
     if(creature === undefined || change === undefined) {
@@ -44,19 +56,28 @@ angular.module( 'd20-engine' ).factory( 'AbstractStatLib', function( $log, Engin
     }
     var parts = change.split(/[-+*/=]/);
     var operator = parts.length > 0 ? change.substring(parts[ 0 ].length, parts[ 0 ].length + 1) : null;
-    if(parts.length !== 2 || parts[0] === '' || parts[1] === '' || !_.includes(['-', '+', '*', '/', '='], operator)) {
+    var statNameParts = parts[0].split(/[\[\]]/);
+    var statName = parts[0];
+    var statSubName = null;
+    if(statNameParts.length === 3 && statNameParts[2] === '' && statNameParts[1] !== '' && statNameParts[0] !== '') {
+      statName = statNameParts[0];
+      statSubName = statNameParts[1];
+    }
+    if(parts.length !== 2 || statName === '' || (statSubName === null && statNameParts.length === 3) || (statNameParts.length !== 1 && statNameParts.length !== 3) || parts[1] === '' || !_.includes(['-', '+', '*', '/', '='], operator)) {
       $log.warn('AbstractLib.changeStat called with bad change parameter', change);
       return null;
     }
-    if( !!this.registered[parts[0]] ) {
-      this.prepareChange(creature, parts[0], this.registered[ parts[0] ].min);
-      creature[ this.libName ][ parts[ 0 ] ] = Engine.compute( creature[ this.libName ][ parts[ 0 ] ], operator, parts[ 1 ], this.registered[ parts[0] ].min, this.registered[ parts[0] ].max );
+    var min = !!this.registered[statName] ? this.registered[ statName ].min : null;
+    var max = !!this.registered[statName] ? this.registered[ statName ].max : null;
+    this.prepareChange(creature, statName, min ? min : 0, statSubName);
+    if( statSubName ) {
+      creature[ this.id ][ statName ][ statSubName ] = Engine.compute( creature[ this.id ][ statName ][ statSubName ], operator, parts[ 1 ], min, max );
+      $log.debug(statName + '[ ' + statSubName +' ] changed from ' + creature.old[this.id][statName][ statSubName ] + ' to ' + creature[this.id][statName][ statSubName ], creature);
     } else {
-      this.prepareChange(creature, parts[0], 0);
-      creature[ this.libName ][ parts[ 0 ] ] = Engine.compute( creature[ this.libName ][ parts[ 0 ] ], operator, parts[ 1 ], null, null );
+      creature[ this.id ][ statName ] = Engine.compute( creature[ this.id ][ statName ], operator, parts[ 1 ], min, max );
+      $log.debug(statName + ' changed from ' + creature.old[this.id][statName] + ' to ' + creature[this.id][statName], creature);
     }
-    $log.debug(parts[0] + ' changed from ' + creature.old[this.libName][parts[0]] + ' to ' + creature[this.libName][parts[0]], creature);
-    Engine.changed(this.libName, creature, parts[0]);
+    Engine.changed(this.id, creature, parts[0]);
   };
   AbstractStatLib.prototype.changed = function(libName, creature, changes) {
     _.forOwn(this.registered,  function(value) {

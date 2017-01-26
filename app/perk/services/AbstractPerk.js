@@ -1,16 +1,17 @@
 'use strict';
 
-angular.module( 'd20-engine' ).factory( 'AbstractPerk', function( $log, PerkLib ) {
+angular.module( 'd20-engine' ).factory( 'AbstractPerk', function( $log ) {
   var i = 0;
-  function AbstractStat( name ){
+  function AbstractPerk( name ){
     this.min = 0;
     this.max = null;
     this.name = 'Perk-' + i;
+    this.id = name;
     i++;
     this.description = '';
-    PerkLib.register( name, this );
   }
-  AbstractStat.prototype.changed = function(libName, creature, changes) {
+  AbstractPerk.prototype.changed = function(libName, creature, changes) {
     $log.debug('Change detected on ' + libName, this, creature, changes);
   };
+  return AbstractPerk;
 });

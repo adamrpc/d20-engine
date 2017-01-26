@@ -61,7 +61,7 @@ describe('Factory: AbstractLib', function() {
     expect(engine.changed).toHaveBeenCalledWith( 'test', creature, 'aaa' );
     engine.changed.calls.reset();
 
-    lib.registered['aaa'] = {min:0, max:10};
+    lib.registered.aaa = {min:0, max:10};
 
     lib.changeValue(creature, 'aaa+2d8');
     expect(creature.test.aaa ).toBe( 14 );
@@ -70,6 +70,65 @@ describe('Factory: AbstractLib', function() {
     engine.compute.calls.reset();
     expect(engine.changed.calls.count()).toBe( 1 );
     expect(engine.changed).toHaveBeenCalledWith( 'test', creature, 'aaa' );
+    engine.changed.calls.reset();
+  });
+  it('Should changeValue with subType', function() {
+    spyOn(engine, 'registerLib');
+    var lib = new abstractLib('test');
+    expect(engine.registerLib.calls.count()).toBe( 1 );
+    expect(engine.registerLib).toHaveBeenCalledWith( 'test', lib );
+
+    expect(lib.changeValue).toBeDefined();
+
+    var creature = {};
+    expect(lib.changeValue()).toBe( null );
+    expect(lib.changeValue(creature)).toBe( null );
+    expect(lib.changeValue(creature, 2)).toBe( null );
+    expect(lib.changeValue(creature, '')).toBe( null );
+    expect(lib.changeValue(creature, '+')).toBe( null );
+    expect(lib.changeValue(creature, '-')).toBe( null );
+    expect(lib.changeValue(creature, '*')).toBe( null );
+    expect(lib.changeValue(creature, '/')).toBe( null );
+    expect(lib.changeValue(creature, '=')).toBe( null );
+    expect(lib.changeValue(creature, 'aaa[ddd]')).toBe( null );
+    expect(lib.changeValue(creature, 'aaa[ddd]+')).toBe( null );
+    expect(lib.changeValue(creature, 'aaa[ddd]-')).toBe( null );
+    expect(lib.changeValue(creature, 'aaa[ddd]*')).toBe( null );
+    expect(lib.changeValue(creature, 'aaa[ddd]/')).toBe( null );
+    expect(lib.changeValue(creature, 'aaa[ddd]=')).toBe( null );
+    expect(lib.changeValue(creature, 'aaa[ddd]+bbb[ddd]+ccc[ddd]')).toBe( null );
+    expect(lib.changeValue(creature, 'aaa[ddd]-bbb[ddd]+ccc[ddd]')).toBe( null );
+    expect(lib.changeValue(creature, 'aaa[ddd]*bbb[ddd]+ccc[ddd]')).toBe( null );
+    expect(lib.changeValue(creature, 'aaa[ddd]/bbb[ddd]+ccc[ddd]')).toBe( null );
+    expect(lib.changeValue(creature, 'aaa[ddd]=bbb[ddd]+ccc[ddd]')).toBe( null );
+    expect(lib.changeValue(creature, '+aaa+bbb[ddd]')).toBe( null );
+
+    spyOn(engine, 'compute').and.callFake(function( currentValue ) {
+      return currentValue + 7;
+    });
+    spyOn(engine, 'changed');
+
+    lib.changeValue(creature, 'aaa[ddd]+2d8');
+    expect(creature.test ).toBeDefined();
+    expect(creature.test.aaa ).toBeDefined();
+    expect(creature.test.aaa.ddd ).toBeDefined();
+    expect(creature.test.aaa.ddd ).toBe( 7 );
+    expect(engine.compute.calls.count()).toBe( 1 );
+    expect(engine.compute).toHaveBeenCalledWith( 0, '+', '2d8', null, null );
+    engine.compute.calls.reset();
+    expect(engine.changed.calls.count()).toBe( 1 );
+    expect(engine.changed).toHaveBeenCalledWith( 'test', creature, 'aaa[ddd]' );
+    engine.changed.calls.reset();
+
+    lib.registered.aaa = {min:0, max:10};
+
+    lib.changeValue(creature, 'aaa[ddd]+2d8');
+    expect(creature.test.aaa.ddd ).toBe( 14 );
+    expect(engine.compute.calls.count()).toBe( 1 );
+    expect(engine.compute).toHaveBeenCalledWith( 7, '+', '2d8', 0, 10 );
+    engine.compute.calls.reset();
+    expect(engine.changed.calls.count()).toBe( 1 );
+    expect(engine.changed).toHaveBeenCalledWith( 'test', creature, 'aaa[ddd]' );
     engine.changed.calls.reset();
   });
   it('Should register', function() {

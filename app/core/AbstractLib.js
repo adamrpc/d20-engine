@@ -1,14 +1,13 @@
 'use strict';
 
-angular.module( 'd20-engine' ).factory( 'AbstractLib', function( $log, Engine ) {
-  var AbstractLib = function( libName ) {
-    this.libName = libName;
+angular.module( 'd20-engine' ).factory( 'AbstractLib', function( Engine ) {
+  var AbstractLib = function( name ) {
+    this.id = name;
     this.initLib();
-    Engine.registerLib( this.libName, this);
+    Engine.registerLib( this.id, this);
   };
   AbstractLib.prototype.initLib = function() {};
-  AbstractLib.prototype.init = function() { return null; };
   AbstractLib.prototype.change = function() {};
-  AbstractLib.prototype.changed = function(libName, creature, changes) {};
+  AbstractLib.prototype.changed = function() {};
   return AbstractLib;
 });
