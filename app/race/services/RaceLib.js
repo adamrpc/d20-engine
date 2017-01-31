@@ -3,9 +3,6 @@
 angular.module( 'd20-engine' ).factory( 'RaceLib', function( $log, Engine, AbstractLib ) {
   var RaceLib = angular.copy(AbstractLib);
   angular.extend(RaceLib.prototype, AbstractLib.prototype);
-  RaceLib.prototype.initLib = function() {
-    this.registered = {};
-  };
   RaceLib.prototype.prepareChange = function(creature) {
     if(!creature.old) {
       creature.old = {};
@@ -17,11 +14,11 @@ angular.module( 'd20-engine' ).factory( 'RaceLib', function( $log, Engine, Abstr
       return null;
     }
     if(!_.isString(change)) {
-      $log.warn('AbstractLib.changeStat called with bad change parameter', change);
+      $log.warn('RaceLib.change called with bad change parameter', change);
       return null;
     }
     if( !!this.registered[change] ) {
-        $log.warn('Unknown value provided, changing anyway', change);
+      $log.warn('Unknown value provided, changing anyway', change);
     }
     this.prepareChange(creature);
     creature[ this.id ] = change;
@@ -33,29 +30,29 @@ angular.module( 'd20-engine' ).factory( 'RaceLib', function( $log, Engine, Abstr
       value.changed(libName, creature, changes);
     });
   };
-  RaceLib.prototype.register = function(raceName, race) {
-    if(!!this.registered[raceName]) {
-      $log.warn('Race ' + raceName + ' already defined, overwriting.', this.registered[raceName], race);
+  RaceLib.prototype.checkCondition = function( creature, condition ) {
+    var matches = condition.match(/^(\?|!)(.+)$/);
+    if(!matches) {
+      $log.warn('Condition is not well formatted, unable to check, returning true.', condition);
+      return true;
     }
-    this.registered[raceName] = race;
+    var booleanComparison = matches[1];
+    var name = matches[2];
+    if(!this.registered[name]) {
+      $log.warn('Check condition of unknown race, continuing anyway.', name);
+    }
+    var currentValue = null;
+    if(_.has(creature, this.id)) {
+      currentValue = creature[this.id];
+    }
+    switch(booleanComparison) {
+      case '?':
+        return currentValue === name;
+      case '!':
+        return currentValue !== name;
+      default:
+        return true;
+    }
   };
-  return new Proxy( RaceLib, {
-    construct: function( Target, argumentsList ) {
-      var newTarget = Object.create(Target.prototype);
-      return new Proxy( Target.apply(newTarget, argumentsList) || newTarget, {
-        get: function( target, name ) {
-          if(_.has(target.prototype, name)) {
-            return target.prototype[name];
-          }
-          if(_.has(target.registered, name) ) {
-            return target.registered[ name ];
-          }
-          return target[ name ];
-        },
-        set: function() {
-          return true;
-        }
-      } );
-    }
-  } );
+  return new RaceLib('race');
 });

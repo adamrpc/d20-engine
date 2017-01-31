@@ -40,6 +40,21 @@ angular.module( 'd20-engine' ).factory( 'Engine', function( $log ) {
       value.changed(libName, creature, changes);
     });
   };
+  Engine.prototype.checkConditions = function( libName, creature, name ) {
+    if(!this.registeredLibs[libName]) {
+      $log.warn('Lib ' + libName + ' not existing, checking nothing, returning true.');
+      return true;
+    }
+    return this.registeredLibs[ libName ].checkConditions(creature, name);
+  };
+  Engine.prototype.checkCondition = function( creature, condition ) {
+    var matches = condition.match(/^(.*)\((.*)\)$/);
+    if(!this.registeredLibs[matches[1]]) {
+      $log.warn('Lib ' + matches[1] + ' not existing, checking nothing, returning true.');
+      return true;
+    }
+    return this.registeredLibs[ matches[1] ].checkCondition(creature, matches[2]);
+  };
   Engine.prototype.compute = function(currentValue, operator, value, min, max) {
     var rolled = this.roll( value );
     switch( operator ) {

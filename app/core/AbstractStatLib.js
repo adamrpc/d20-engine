@@ -3,15 +3,12 @@
 angular.module( 'd20-engine' ).factory( 'AbstractStatLib', function( $log, Engine, AbstractLib ) {
   var AbstractStatLib = angular.copy(AbstractLib);
   angular.extend(AbstractStatLib.prototype, AbstractLib.prototype);
-  AbstractStatLib.prototype.initLib = function() {
-    this.registered = {};
-  };
   AbstractStatLib.prototype.change = function(creature, changes) {
     if(creature === undefined || changes === undefined) {
       return;
     }
     if(!_.isString(changes)) {
-      $log.warn('AbstractLib.change called with bad changes parameter', changes);
+      $log.warn('AbstractStatLib.change called with bad changes parameter', changes);
       return;
     }
     var that = this;
@@ -51,7 +48,7 @@ angular.module( 'd20-engine' ).factory( 'AbstractStatLib', function( $log, Engin
       return null;
     }
     if(!_.isString(change)) {
-      $log.warn('AbstractLib.changeStat called with bad change parameter', change);
+      $log.warn('AbstractStatLib.changeStat called with bad change parameter', change);
       return null;
     }
     var parts = change.split(/[-+*/=]/);
@@ -64,8 +61,11 @@ angular.module( 'd20-engine' ).factory( 'AbstractStatLib', function( $log, Engin
       statSubName = statNameParts[1];
     }
     if(parts.length !== 2 || statName === '' || (statSubName === null && statNameParts.length === 3) || (statNameParts.length !== 1 && statNameParts.length !== 3) || parts[1] === '' || !_.includes(['-', '+', '*', '/', '='], operator)) {
-      $log.warn('AbstractLib.changeStat called with bad change parameter', change);
+      $log.warn('AbstractStatLib.changeStat called with bad change parameter', change);
       return null;
+    }
+    if( !!this.registered[statName] ) {
+      $log.warn('Unknown value provided, changing anyway', statName);
     }
     var min = !!this.registered[statName] ? this.registered[ statName ].min : null;
     var max = !!this.registered[statName] ? this.registered[ statName ].max : null;
@@ -84,29 +84,74 @@ angular.module( 'd20-engine' ).factory( 'AbstractStatLib', function( $log, Engin
       value.changed(libName, creature, changes);
     });
   };
-  AbstractStatLib.prototype.register = function(statName, stat) {
-    if(!!this.registered[statName]) {
-      $log.warn('Stat ' + statName + ' already defined, overwriting.', this.registered[statName], stat);
+  AbstractLib.prototype.checkCondition = function( creature, condition ) {
+    if(!creature) {
+      $log.warn('No creature provided, returning true.');
+      return true;
     }
-    this.registered[statName] = stat;
-  };
-  return new Proxy( AbstractStatLib, {
-    construct: function( Target, argumentsList ) {
-      var newTarget = Object.create(Target.prototype);
-      return new Proxy( Target.apply(newTarget, argumentsList) || newTarget, {
-        get: function( target, name ) {
-          if(_.has(target.prototype, name)) {
-            return target.prototype[name];
-          }
-          if(_.has(target.registered, name) ) {
-            return target.registered[ name ];
-          }
-          return target[ name ];
-        },
-        set: function() {
+    if(!condition) {
+      $log.warn('No condition provided, returning true.');
+      return true;
+    }
+    var matches = condition.match(/^(.*?)(\[(.*)])?((>|<|>=|<=|=|!=)([0-9.]+)|(\?|!))$/);
+    if(!matches) {
+      $log.warn('Condition is not well formatted, unable to check, returning true.', condition);
+      return true;
+    }
+    var name = matches[1];
+    var subName = matches[3];
+    var numericComparison = matches[5];
+    var numericValue = matches[6];
+    var booleanComparison = matches[7];
+    if(!this.registered[name]) {
+      $log.warn('Unknown stat, checking anyway.', name);
+    }
+    var currentValue = null;
+    if(_.has(creature, this.id) && _.has(creature[this.id], name)) {
+      if(subName && _.has(creature[this.id][name], subName)) {
+        currentValue = creature[this.id][name][subName];
+      }else if(!subName) {
+        currentValue = creature[this.id][name];
+      }
+    }
+    if(numericComparison) {
+      if(isNaN(numericValue)) {
+        $log.warn('Can\'t process numeric check with non numeric value, returning true.', condition);
+        return true;
+      }
+      if(currentValue === null) {
+        currentValue = 0;
+      }else if(_.isObject(currentValue)) {
+        currentValue = _.keys(currentValue ).length;
+      }
+      numericValue = parseFloat(numericValue);
+      switch(numericComparison) {
+        case '>':
+          return currentValue > numericValue;
+        case '<':
+          return currentValue < numericValue;
+        case '>=':
+          return currentValue >= numericValue;
+        case '<=':
+          return currentValue <= numericValue;
+        case '=':
+          return currentValue === numericValue;
+        case '!=':
+          return currentValue !== numericValue;
+        default:
           return true;
-        }
-      } );
+      }
     }
-  } );
+    if(booleanComparison) {
+      switch(booleanComparison) {
+        case '?':
+          return !!currentValue || currentValue > 0;
+        case '!':
+          return !currentValue || currentValue <= 0;
+        default:
+          return true;
+      }
+    }
+  };
+  return AbstractStatLib;
 });

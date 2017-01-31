@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Factory: AbstractLib', function() {
+describe('Factory: AbstractStatLib', function() {
   beforeEach( module( 'd20-engine' ) );
   var abstractLib;
   var engine = {
@@ -208,5 +208,117 @@ describe('Factory: AbstractLib', function() {
     expect(lib.changeValue).toHaveBeenCalledWith( creature, 'aaa+2d6' );
     expect(lib.changeValue).toHaveBeenCalledWith( creature, 'bbb-5d20' );
     lib.changeValue.calls.reset();
+  });
+  it('Should check a condition', function() {
+    spyOn(engine, 'registerLib');
+    var lib = new abstractLib('test');
+    expect(engine.registerLib.calls.count()).toBe( 1 );
+    expect(engine.registerLib).toHaveBeenCalledWith( 'test', lib );
+
+    expect(lib.checkCondition).toBeDefined();
+
+    expect(lib.checkCondition() ).toBe(true);
+    var creature = {};
+    expect(lib.checkCondition(creature) ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]>=1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]>1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]=1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!=1') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]=0') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!=0') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]<=1') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]<1') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]?') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb>=1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb>1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb=1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb!=1') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb=0') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb!=0') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb<=1') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb<1') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb?') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb!') ).toBe(true);
+
+    creature.test = {};
+    creature.test.bbb = 1;
+    expect(lib.checkCondition(creature) ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]>=1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]>1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]=1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!=1') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]=0') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!=0') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]<=1') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]<1') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]?') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb>=1') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb>1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb=1') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb!=1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb=0') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb!=0') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb<=1') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb<1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb?') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb!') ).toBe(false);
+
+    creature.test.bbb = {};
+    creature.test.bbb.ccc = 2;
+    expect(lib.checkCondition(creature) ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]>=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]>2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!=2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]=0') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!=0') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]<=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]<2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]?') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb>=2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb>2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb=2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb!=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb=0') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb!=0') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb<=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb<2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb?') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb!') ).toBe(false);
+
+    creature.test.bbb.ddd = 2;
+    expect(lib.checkCondition(creature, 'bbb[ccc]>=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]>2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!=2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]=0') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!=0') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]<=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]<2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]?') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ddd]>=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ddd]>2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ddd]=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ddd]!=2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ddd]=0') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ddd]!=0') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ddd]<=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ddd]<2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ddd]?') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ddd]!') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb>=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb>2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb!=2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb=0') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb!=0') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb<=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb<2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb?') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb!') ).toBe(false);
   });
 });

@@ -126,4 +126,50 @@ describe('Factory: Engine', function() {
     expect(testLib2.changed.calls.count()).toBe( 1 );
     expect(testLib2.changed).toHaveBeenCalledWith( 'test', 5, 7 );
   });
+  it('Should define Engine.checkConditions', function() {
+    expect(engine.checkConditions).toBeDefined();
+  });
+  it('Should call checkConditions method of requested lib', function() {
+    var testLib = {checkConditions: function(){}};
+    var testLib2 = {checkConditions: function(){}};
+    engine.registerLib('test', testLib);
+    engine.registerLib('test2', testLib2);
+    spyOn(testLib, 'checkConditions');
+    spyOn(testLib2, 'checkConditions');
+    var creature = {};
+    engine.checkConditions('test', creature, 'aaa');
+    expect(testLib.checkConditions.calls.count()).toBe( 1 );
+    expect(testLib.checkConditions).toHaveBeenCalledWith( creature, 'aaa' );
+    expect(testLib2.checkConditions.calls.count()).toBe( 0 );
+    testLib.checkConditions.calls.reset();
+
+    engine.checkConditions('test2', creature, 'aaa');
+    expect(testLib2.checkConditions.calls.count()).toBe( 1 );
+    expect(testLib2.checkConditions).toHaveBeenCalledWith( creature, 'aaa' );
+    expect(testLib.checkConditions.calls.count()).toBe( 0 );
+    testLib2.checkConditions.calls.reset();
+  });
+  it('Should define Engine.checkCondition', function() {
+    expect(engine.checkCondition).toBeDefined();
+  });
+  it('Should call checkCondition method of requested lib', function() {
+    var testLib = {checkCondition: function(){}};
+    var testLib2 = {checkCondition: function(){}};
+    engine.registerLib('test', testLib);
+    engine.registerLib('test2', testLib2);
+    spyOn(testLib, 'checkCondition');
+    spyOn(testLib2, 'checkCondition');
+    var creature = {};
+    engine.checkCondition(creature, 'test(aaa)');
+    expect(testLib.checkCondition.calls.count()).toBe( 1 );
+    expect(testLib.checkCondition).toHaveBeenCalledWith( creature, 'aaa' );
+    expect(testLib2.checkCondition.calls.count()).toBe( 0 );
+    testLib.checkCondition.calls.reset();
+
+    engine.checkCondition(creature, 'test2(aaa)');
+    expect(testLib2.checkCondition.calls.count()).toBe( 1 );
+    expect(testLib2.checkCondition).toHaveBeenCalledWith( creature, 'aaa' );
+    expect(testLib.checkCondition.calls.count()).toBe( 0 );
+    testLib2.checkCondition.calls.reset();
+  });
 });
