@@ -9,11 +9,10 @@ angular.module( 'd20-engine' ).factory( 'AbstractGift', function( $log ) {
     this.name = 'Gift-' + i;
     this.id = name;
     this.description = '';
+    this.bonuses = [];
+    this.hidden = false;
     i++;
   }
-  AbstractGift.prototype.activate = function() {
-    $log.warn('Gift ' + this.id + ' activation method undefined, doing nothing.', this);
-  };
   AbstractGift.prototype.changed = function(libName, creature, changes) {
     $log.debug('Change detected on ' + libName, this, creature, changes);
   };
