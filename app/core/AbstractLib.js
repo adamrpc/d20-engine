@@ -33,11 +33,13 @@ angular.module( 'd20-engine' ).factory( 'AbstractLib', function( $log, Engine ) 
     } );
   };
   AbstractLib.prototype.checkCondition = function() {};
+  AbstractLib.prototype.checkRegistering = function() {};
   AbstractLib.prototype.register = function(name, value) {
     if(!!this.registered[name]) {
       $log.warn('Stat ' + name + ' already defined, overwriting.', this.registered[name], value);
     }
     this.registered[name] = value;
+    this.checkRegistering(name, value);
   };
   return new Proxy( AbstractLib, {
     construct: function( Target, argumentsList ) {

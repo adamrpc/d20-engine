@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module( 'd20-engine' ).factory( 'RaceLib', function( $log, Engine, AbstractLib ) {
+angular.module( 'd20-engine' ).factory( 'RaceLib', function( $log, Engine, AbstractLib, StatLib, GiftLib ) {
   var RaceLib = angular.copy(AbstractLib);
   angular.extend(RaceLib.prototype, AbstractLib.prototype);
   RaceLib.prototype.prepareChange = function(creature) {
@@ -53,6 +53,26 @@ angular.module( 'd20-engine' ).factory( 'RaceLib', function( $log, Engine, Abstr
       default:
         return true;
     }
+  };
+  RaceLib.prototype.checkRegistering = function(name, value) {
+    _.forEach(value.gifts, function(gift) {
+      var matches = gift.match(/^(.*?)(\[(.*)])?$/);
+      if(!matches) {
+        $log.warn('Bad gift formatting (' + gift +') while loading race (' + name + '), loading anyway.');
+      }
+      if(matches[1] !== 'any' && !GiftLib[matches[1]]) {
+        $log.warn('Unkown gift (' + matches[1] + ') while loading race (' + name + '), loading anyway.');
+      }
+    });
+    _.forEach(value.stats, function(stat) {
+      var matches = stat.match(/^(.*)[+\-*/=][0-9]+$/);
+      if(!matches) {
+        $log.warn('Bad stat formatting (' + stat +') while loading race (' + name + '), loading anyway.');
+      }
+      if(matches[1] !== 'any' && matches[1] !== 'all' && !StatLib[matches[1]]) {
+        $log.warn('Unkown stat (' + matches[1] + ') while loading race (' + name + '), loading anyway.');
+      }
+    });
   };
   return new RaceLib('race');
 });
