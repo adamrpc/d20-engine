@@ -2,7 +2,7 @@
 
 angular.module( 'd20-engine' ).factory( 'AbstractStatLib', function( $log, Engine, AbstractLib ) {
   var AbstractStatLib = angular.copy(AbstractLib);
-  angular.extend(AbstractStatLib.prototype, AbstractLib.prototype);
+  AbstractStatLib.prototype = Object.create(AbstractLib.prototype);
   AbstractStatLib.prototype.change = function(creature, changes) {
     if(creature === undefined || changes === undefined) {
       return;
