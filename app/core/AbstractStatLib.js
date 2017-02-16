@@ -84,7 +84,7 @@ angular.module( 'd20-engine' ).factory( 'AbstractStatLib', function( $log, Engin
       value.changed(libName, creature, changes);
     });
   };
-  AbstractLib.prototype.checkCondition = function( creature, condition ) {
+  AbstractStatLib.prototype.checkCondition = function( creature, condition ) {
     if(!creature) {
       $log.warn('No creature provided, returning true.');
       return true;

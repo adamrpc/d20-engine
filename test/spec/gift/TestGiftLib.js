@@ -5,18 +5,22 @@ describe('Factory: GiftLib', function() {
   var giftLib;
   var abstractGift;
   var perkLib = {};
+  var log;
   beforeEach(module(function ($provide) {
     $provide.value('PerkLib', perkLib);
   }));
-  beforeEach( inject( function( GiftLib, AbstractGift ) {
+  beforeEach( inject( function( $log, GiftLib, AbstractGift ) {
     giftLib = GiftLib;
     abstractGift = AbstractGift;
+    log = $log;
   } ) );
   it( 'Should checkRegistering', function() {
     expect( giftLib.checkRegistering ).toBeDefined();
+    spyOn(log, 'warn' ).and.callFake( console.log );
     var gift = new abstractGift( 'test' );
     perkLib.aaaa = true;
-    expect( giftLib.register( 'test', gift ).length ).toBe( 0 );
+    giftLib.register( 'test', gift );
+    expect( log.warn.calls.count( ) ).toBe( 0 );
     gift.bonuses.push('aaa[#]+1');
     gift.bonuses.push('aaa[#]+1;');
     gift.bonuses.push('+bbb+2;');
@@ -69,7 +73,9 @@ describe('Factory: GiftLib', function() {
     gift.bonuses.push('skill(#).hhh<5|#+2;');
     gift.bonuses.push('iii(1j)|aaaa;');
     gift.bonuses.push('limit(jjj)|aaaa;');
-    expect( giftLib.register( 'test0', gift ).length ).toBe( 41 );
+    giftLib.register( 'test0', gift );
+    expect( log.warn.calls.count( ) ).toBe( 41 );
+    log.warn.calls.reset();
     perkLib.aaa = true;
     perkLib.bbb = true;
     perkLib.ccc = true;
@@ -95,6 +101,8 @@ describe('Factory: GiftLib', function() {
     perkLib.www = true;
     perkLib.xxx = true;
     perkLib.yyy = true;
-    expect( giftLib.register( 'test1', gift ).length ).toBe( 16 );
+    giftLib.register( 'test1', gift );
+    expect( log.warn.calls.count( ) ).toBe( 16 );
+    log.warn.calls.reset();
   } );
 });

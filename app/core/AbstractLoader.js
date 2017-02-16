@@ -5,7 +5,7 @@ angular.module( 'd20-engine' ).factory( 'AbstractLoader', function( $log, Engine
     this.id = name;
     this.ALL = 'all';
     this.initLoader();
-    Engine.registerLoader( this.name, this);
+    Engine.registerLoader( this.id, this);
   };
   AbstractLoader.prototype.initLoader = function() {
     this.registered = {};
