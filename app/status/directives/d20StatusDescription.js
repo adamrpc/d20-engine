@@ -8,11 +8,11 @@ angular.module( 'd20-engine' ).directive( 'd20StatusDescription', function( ) {
       name: '@',
       for: '=',
     },
-    controller : function($scope, PerkLib) {
-      $scope.PerkLib = PerkLib;
+    controller : function($scope, StatusLib) {
+      $scope.StatusLib = StatusLib;
     },
     templateUrl: function($elem, $attrs) {
-      return 'perk/views/' + ($attrs.stat ? ($attrs.stat + '_') : '') + 'description.html';
+      return 'status/views/' + ($attrs.stat ? ($attrs.stat + '_') : '') + 'description.html';
     }
   };
 });

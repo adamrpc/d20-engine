@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module( 'd20-engine' ).factory( 'FeatLib', function( $log, PerkLib, AbstractStatLib ) {
+angular.module( 'd20-engine' ).factory( 'FeatLib', function( $log, SkillLib, AbstractStatLib ) {
   var FeatLib = angular.copy(AbstractStatLib);
   FeatLib.prototype = Object.create(AbstractStatLib.prototype);
   FeatLib.prototype.checkRegistering = function(name, value) {
@@ -14,9 +14,9 @@ angular.module( 'd20-engine' ).factory( 'FeatLib', function( $log, PerkLib, Abst
         if(!matches) {
           $log.warn('Bad bonus formatting (' + b +') while loading feat (' + name + '), loading anyway. (' + bonus + ')');
         } else {
-          var perk = matches[8] ? matches[8] : matches[16];
-          if(perk !== 'any' && perk !== '#' && !PerkLib[perk]) {
-            $log.warn('Unkown skill (' + perk + ') while loading feat (' + name + '), loading anyway. (' + b + ')');
+          var skill = matches[8] ? matches[8] : matches[16];
+          if(skill !== 'any' && skill !== '#' && !SkillLib[skill]) {
+            $log.warn('Unkown skill (' + skill + ') while loading feat (' + name + '), loading anyway. (' + b + ')');
           }
         }
       });
