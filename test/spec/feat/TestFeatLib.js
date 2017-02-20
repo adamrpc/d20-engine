@@ -64,17 +64,15 @@ describe('Factory: FeatLib', function() {
     feat.bonuses.push('!-aaaa[#]+;');
     feat.bonuses.push('!-aaaa[#]-;');
     feat.bonuses.push('!+aaaa[#]-2;');
-    feat.bonuses.push('limit(1j)|aaaa[#]=level;aaaa[#]=stat[bbbb];ccc(#);');
     feat.bonuses.push('limit(1j)|aaaa[#]=level;aaaa[#]=ddd[bbbb];spell(#);');
     feat.bonuses.push('limit(1j)|aaaa[#]=eee;aaaa[#]=stat[bbbb];spell(#);');
     feat.bonuses.push('fff(1j)|aaaa[#]=level;aaaa[#]=stat[bbbb];spell(#);');
-    feat.bonuses.push('+aaaa[fff(#)]+2;');
     feat.bonuses.push('ggg(#).lvl<5|#+2;');
     feat.bonuses.push('skill(#).hhh<5|#+2;');
     feat.bonuses.push('iii(1j)|aaaa;');
     feat.bonuses.push('limit(jjj)|aaaa;');
     featLib.register( 'test0', feat );
-    expect( log.warn.calls.count( ) ).toBe( 41 );
+    expect( log.warn.calls.count( ) ).toBe( 39 );
     log.warn.calls.reset();
     perkLib.aaa = true;
     perkLib.bbb = true;
@@ -102,7 +100,7 @@ describe('Factory: FeatLib', function() {
     perkLib.xxx = true;
     perkLib.yyy = true;
     featLib.register( 'test1', feat );
-    expect( log.warn.calls.count( ) ).toBe( 16 );
+    expect( log.warn.calls.count( ) ).toBe( 14 );
     log.warn.calls.reset();
   } );
 });

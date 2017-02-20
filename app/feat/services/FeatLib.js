@@ -10,7 +10,7 @@ angular.module( 'd20-engine' ).factory( 'FeatLib', function( $log, PerkLib, Abst
           return;
         }
         b += ';';
-        var matches = b.match(/^((limit\([0-9]+[smhj]\)|skill\(([a-zA-Z_]+?|#)\)\.(lvl)(<|<=|>=|>|=|!=)[0-9]+)\|)?(!?([+-]|)([a-zA-Z_]+?|#)(\[(#|[a-zA-Z_]+?|(spell\(|effect\()(#|[a-zA-Z_]+?)\))])?(\7[+\-*]?[0-9]+|=(level|stat\[[a-zA-Z_]+?]))?;|(spell\(|effect\()(#|[a-zA-Z_]+?)\);)+$/);
+        var matches = b.match(/^((limit\([0-9]+[smhj]\)|skill\(([a-zA-Z_]+?|#)\)\.(lvl)(<|<=|>=|>|=|!=)[0-9]+)\|)?(!?([+-]|)([a-zA-Z_]+?|#)(\[(#|[a-zA-Z_]+?|([a-zA-Z_]+\()(#|[a-zA-Z_]+?)\))])?(\7[+\-*]?[0-9]+|=(level|stat\[[a-zA-Z_]+?]))?;|([a-zA-Z_]+\()(#|[a-zA-Z_]+?)\);)+$/);
         if(!matches) {
           $log.warn('Bad bonus formatting (' + b +') while loading feat (' + name + '), loading anyway. (' + bonus + ')');
         } else {
