@@ -3,12 +3,12 @@
 describe('Factory: RaceLib', function() {
   beforeEach( module( 'd20-engine' ) );
   var raceLib;
-  var giftLib = {};
+  var featLib = {};
   var statLib = {};
   var abstractRace;
   var log;
   beforeEach(module(function ($provide) {
-    $provide.value('GiftLib', giftLib);
+    $provide.value('FeatLib', featLib);
     $provide.value('StatLib', statLib);
   }));
   beforeEach( inject( function( $log, RaceLib, AbstractRace ) {
@@ -22,21 +22,21 @@ describe('Factory: RaceLib', function() {
     var race = new abstractRace( 'test' );
     raceLib.register( 'test', race );
     expect( log.warn.calls.count() ).toBe( 0 );
-    race.gifts.push( 'aaa' );
-    race.gifts.push( 'bbb[ccc]' );
-    race.gifts.push( 'bbb[ddd' );
+    race.feats.push( 'aaa' );
+    race.feats.push( 'bbb[ccc]' );
+    race.feats.push( 'bbb[ddd' );
     raceLib.register( 'test0', race );
     expect( log.warn.calls.count( ) ).toBe( 3 );
     log.warn.calls.reset();
-    race.gifts.length--;
+    race.feats.length--;
     raceLib.register( 'test1', race );
     expect( log.warn.calls.count( ) ).toBe( 2 );
     log.warn.calls.reset();
-    giftLib.aaa = true;
+    featLib.aaa = true;
     raceLib.register( 'test2', race );
     expect( log.warn.calls.count( ) ).toBe( 1 );
     log.warn.calls.reset();
-    giftLib.bbb = true;
+    featLib.bbb = true;
     raceLib.register( 'test4', race );
     expect( log.warn.calls.count( ) ).toBe( 0 );
     race.stats.push( 'ddd+1' );

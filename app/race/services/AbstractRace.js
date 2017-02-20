@@ -3,7 +3,7 @@
 angular.module( 'd20-engine' ).factory( 'AbstractRace', function( $log ) {
   var i = 0;
   function AbstractRace( name ){
-    this.gifts = [];
+    this.feats = [];
     this.stats = [];
     this.languages = [];
     this.availableLanguages = [];

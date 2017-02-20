@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module( 'd20-engine' ).factory( 'RaceLib', function( $log, Engine, AbstractLib, StatLib, GiftLib ) {
+angular.module( 'd20-engine' ).factory( 'RaceLib', function( $log, Engine, AbstractLib, StatLib, FeatLib ) {
   var RaceLib = angular.copy(AbstractLib);
   RaceLib.prototype = Object.create(AbstractLib.prototype);
   RaceLib.prototype.prepareChange = function(creature) {
@@ -55,12 +55,12 @@ angular.module( 'd20-engine' ).factory( 'RaceLib', function( $log, Engine, Abstr
     }
   };
   RaceLib.prototype.checkRegistering = function(name, value) {
-    _.forEach(value.gifts, function(gift) {
-      var matches = gift.match(/^([^\[]*?)(\[(.*)])?$/);
+    _.forEach(value.feats, function(feat) {
+      var matches = feat.match(/^([^\[]*?)(\[(.*)])?$/);
       if(!matches) {
-        $log.warn('Bad gift formatting (' + gift +') while loading race (' + name + '), loading anyway.');
-      } else if(matches[1] !== 'any' && !GiftLib[matches[1]]) {
-        $log.warn('Unkown gift (' + matches[1] + ') while loading race (' + name + '), loading anyway.');
+        $log.warn('Bad feat formatting (' + feat +') while loading race (' + name + '), loading anyway.');
+      } else if(matches[1] !== 'any' && !FeatLib[matches[1]]) {
+        $log.warn('Unkown feat (' + matches[1] + ') while loading race (' + name + '), loading anyway.');
       }
     });
     _.forEach(value.stats, function(stat) {
