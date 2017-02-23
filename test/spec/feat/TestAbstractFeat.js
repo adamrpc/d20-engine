@@ -11,10 +11,10 @@ describe('Factory: AbstractFeat', function() {
     log = $log;
   } ) );
   function checkBonus(value, base_bonus, bonus, malus, malus_limit, bonus_limit) {
-    expect(value.bonus ).toBeDefined();
-    expect(value.bonus ).toBe(bonus);
     expect(value.base_bonus ).toBeDefined();
     expect(value.base_bonus ).toBe(base_bonus);
+    expect(value.bonus ).toBeDefined();
+    expect(value.bonus ).toBe(bonus);
     expect(value.malus ).toBeDefined();
     expect(value.malus ).toBe(malus);
     expect(value.malus_limit ).toBeDefined();
@@ -147,5 +147,64 @@ describe('Factory: AbstractFeat', function() {
     checkBonus(result, 12, 13, 20, 24, 7);
     result = feat.bonus(creature, 'ddd');
     checkBonus(result, 11, 13, 17, 19, 23);
+  } );
+  it( 'Should return the bonus if the creature have the feat and match condition', function() {
+    var feat = new abstractFeat('test');
+    featLib.register(feat.id, feat);
+    feat.bonuses = [
+      'feat(test[ddd]>1)|+aaa[bbb(ccc)]+73', 'feat(test[ddd]>1)|aaa[bbb(ccc)]+79', 'feat(test[ddd]>1)|-aaa[bbb(ccc)]-83', 'feat(test[ddd]>1)|!-aaa[bbb(ccc)]-89', 'feat(test[ddd]>1)|!+aaa[bbb(ccc)]+91',
+      'feat(test[ddd]<=1)|+aaa[bbb(#)]+53', 'feat(test[ddd]<=1)|aaa[bbb(#)]+59', 'feat(test[ddd]<=1)|-aaa[bbb(#)]-61', 'feat(test[ddd]<=1)|!-aaa[bbb(#)]-67', 'feat(test[ddd]<=1)|!+aaa[bbb(#)]+71',
+      'feat(test[ddd]>1)|+aaa[#]+31', 'feat(test[ddd]>1)|aaa[#]+37', 'feat(test[ddd]>1)|-aaa[#]-41', 'feat(test[ddd]>1)|!-aaa[#]-43', 'feat(test[ddd]>1)|!+aaa[#]+47',
+      'feat(test[ddd]<=1)|+aaa+1', 'feat(test[ddd]<=1)|aaa+2', 'feat(test[ddd]<=1)|-aaa-3', 'feat(test[ddd]<=1)|!-aaa-5', 'feat(test[ddd]<=1)|!+aaa+7',
+      'feat(test[ddd]>1)|+#+11', 'feat(test[ddd]>1)|#+13', 'feat(test[ddd]>1)|-#-17', 'feat(test[ddd]>1)|!-#-19', 'feat(test[ddd]>1)|!+#+23'
+    ];
+    var creature = { feat: {
+      test: {
+        any: 1,
+        ddd: 1
+      }
+    } };
+    var result = feat.bonus(creature, 'aaa[bbb(ccc)]');
+    checkBonus(result, 53, 59, 61, 67, 71);
+    result = feat.bonus(creature, 'aaa[bbb(ddd)]');
+    checkBonus(result, 53, 59, 61, 67, 71);
+    result = feat.bonus(creature, 'aaa[any(ccc)]');
+    expect(result.any).toBeDefined();
+    checkBonus(result.any, 1, 2, 3, 5, 7);
+    expect(result.bbb).toBeDefined();
+    checkBonus(result.bbb, 53, 59, 61, 67, 71);
+    expect(result.aaa).toBeUndefined();
+    expect(result.ccc).toBeUndefined();
+    expect(result.ddd).toBeUndefined();
+    result = feat.bonus(creature, 'aaa[any(ddd)]');
+    expect(result.any).toBeDefined();
+    checkBonus(result.any, 1, 2, 3, 5, 7);
+    expect(result.bbb).toBeDefined();
+    checkBonus(result.bbb, 53, 59, 61, 67, 71);
+    expect(result.aaa).toBeUndefined();
+    expect(result.ccc).toBeUndefined();
+    expect(result.ddd).toBeUndefined();
+    result = feat.bonus(creature, 'aaa[bbb(any)]');
+    expect(result.any).toBeDefined();
+    checkBonus(result.any, 0, 0, 0, 0, Number.POSITIVE_INFINITY);
+    expect(result.aaa).toBeUndefined();
+    expect(result.bbb).toBeUndefined();
+    expect(result.ccc).toBeUndefined();
+    expect(result.ddd).toBeUndefined();
+    result = feat.bonus(creature, 'aaa[bbb]');
+    checkBonus(result, 0, 0, 0, 0, Number.POSITIVE_INFINITY);
+    result = feat.bonus(creature, 'aaa[ddd]');
+    checkBonus(result, 0, 0, 0, 0, Number.POSITIVE_INFINITY);
+    result = feat.bonus(creature, 'aaa[any]');
+    expect(result.any).toBeDefined();
+    checkBonus(result.any, 1, 2, 3, 5, 7);
+    expect(result.aaa).toBeUndefined();
+    expect(result.bbb).toBeUndefined();
+    expect(result.ccc).toBeUndefined();
+    expect(result.ddd).toBeUndefined();
+    result = feat.bonus(creature, 'aaa');
+    checkBonus(result, 1, 2, 3, 5, 7);
+    result = feat.bonus(creature, 'ddd');
+    checkBonus(result, 0, 0, 0, 0, Number.POSITIVE_INFINITY);
   } );
 });

@@ -37,5 +37,8 @@ describe('Factory: AbstractSkill', function() {
     };
     expect(skill.bonus(creature, 'any(bbb)') ).toBe(-1);
     expect(skill.bonus(creature, 'any') ).toBe(16);
+    skill.base = 10;
+    expect(skill.bonus(creature, 'any(bbb)') ).toBe(9);
+    expect(skill.bonus(creature, 'any') ).toBe(26);
   });
 });

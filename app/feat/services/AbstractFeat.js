@@ -26,6 +26,14 @@ angular.module( 'd20-engine' ).factory( 'AbstractFeat', function( $log, Engine )
       result.malus = 0;
       result.malus_limit = 0;
       result.bonus_limit = Number.POSITIVE_INFINITY;
+    }else{
+      result.any = {
+        base_bonus: 0,
+        bonus: 0,
+        malus: 0,
+        malus_limit: 0,
+        bonus_limit: Number.POSITIVE_INFINITY
+      };
     }
     var regex = new RegExp('^(!?)([+-]|)(([a-zA-Z_]+?|#)(\\[((#)|([a-zA-Z_]+?)|([a-zA-Z_]+)\\((#|[a-zA-Z_]+?)\\))])?)((\\2[+\\-*]?)([0-9]+))?;?$'.replace('#', Engine.quote(type)));
     _.forEach(this.bonuses, function(bonus) {
@@ -100,6 +108,17 @@ angular.module( 'd20-engine' ).factory( 'AbstractFeat', function( $log, Engine )
     var skill2 = matches[4] ? matches[4] : matches[5];
     var skill3 = matches[6];
     var multipleBonuses = skill1 === 'any' || skill2 === 'any' || skill3 === 'any';
+    if(multipleBonuses) {
+      result = {
+        any: {
+          base_bonus: 0,
+          bonus: 0,
+          malus: 0,
+          malus_limit: 0,
+          bonus_limit: 0
+        }
+      };
+    }
     if(skill3 && skill3 !== 'any' && Engine.getValue('feat', creature, this.id + '[' + skill3 + ']') > 0) {
       return this._checkBonus(skill3, creature, skill1, skill2, skill3 );
     }
@@ -111,17 +130,6 @@ angular.module( 'd20-engine' ).factory( 'AbstractFeat', function( $log, Engine )
     }
     if(Engine.getValue('feat', creature, this.id) > 0) {
       return this._checkBonus('any', creature, skill1, skill2, skill3 );
-    }
-    if(multipleBonuses) {
-      return {
-        any: {
-          base_bonus: 0,
-          bonus: 0,
-          malus: 0,
-          malus_limit: 0,
-          bonus_limit: 0
-        }
-      };
     }
     return result;
   };

@@ -15,11 +15,11 @@ angular.module( 'd20-engine' ).factory( 'AbstractSkill', function( $log, FeatLib
   }
   AbstractSkill.prototype.bonus = function(creature, target, variant) {
     $log.debug('############### Entering skill bonus computing ##################', creature, target, variant);
-    var result = 0;
+    var result = this.base;
     var matches = target.match(/^(([a-zA-Z_]+?)|([a-zA-Z_]+?)\(([a-zA-Z_]+?)\))$/);
     if(!matches) {
-      $log.warn('Bonus target not well formatted, returning 0.', target);
-      return 0;
+      $log.warn('Bonus target not well formatted, returning base.', target);
+      return this.base;
     }
     if(matches[2] === 'any' || matches[3] === 'any' || matches[4] === 'any') {
       _.forOwn(FeatLib.getBonuses(creature, this.id + '[' + target + ']'), function(value, key) {
