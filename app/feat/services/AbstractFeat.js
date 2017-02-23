@@ -71,9 +71,17 @@ angular.module( 'd20-engine' ).factory( 'AbstractFeat', function( $log, Engine )
             var data = multipleBonuses ? result[ toCheck ] : result;
             if( bonusMatch[ 1 ] === '!' ) {
               if( bonusMatch[ 2 ] === '+' ) {
-                data.bonus_limit = Math.min( data.bonus_limit, parseInt(bonusMatch[ 13 ]) );
+                if(bonusMatch[ 13 ]) {
+                  data.bonus_limit = Math.min( data.bonus_limit, parseInt( bonusMatch[ 13 ] ) );
+                } else {
+                  data.bonus_limit = 0;
+                }
               } else if( bonusMatch[ 2 ] === '-' ) {
-                data.malus_limit += parseInt(bonusMatch[ 13 ]);
+                if(bonusMatch[ 13 ]) {
+                  data.malus_limit += parseInt( bonusMatch[ 13 ] );
+                } else {
+                  data.malus_limit = Number.POSITIVE_INFINITY;
+                }
               }
             } else {
               if( bonusMatch[ 2 ] === '+' ) {

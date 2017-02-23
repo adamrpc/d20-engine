@@ -37,15 +37,16 @@ describe('Factory: AbstractSkill', function() {
         }
       }
     };
+    spyOn(log, 'debug' ).and.callFake(console.debug);
     expect(skill.bonus(creature, 'any(bbb)') ).toBe(-1);
-    expect(skill.bonus(creature, 'any') ).toBe(16);
+    expect(skill.bonus(creature, 'any') ).toBe(5);
     skill.base = 10;
     expect(skill.bonus(creature, 'any(bbb)') ).toBe(9);
-    expect(skill.bonus(creature, 'any') ).toBe(26);
+    expect(skill.bonus(creature, 'any') ).toBe(15);
     creature.stat = {'test': 5, 'test2': 10, 'test3': 15, 'test4': 20};
     skill.stat = 'test5';
     expect(skill.bonus(creature, 'any(bbb)') ).toBe(9);
-    expect(skill.bonus(creature, 'any') ).toBe(26);
+    expect(skill.bonus(creature, 'any') ).toBe(15);
     statLib.registered.test5 = true;
     statLib.registered.test = true;
     statLib.registered.test2 = true;
@@ -53,18 +54,18 @@ describe('Factory: AbstractSkill', function() {
     statLib.registered.test4 = true;
     skill.stat = 'test5';
     expect(skill.bonus(creature, 'any(bbb)') ).toBe(4);
-    expect(skill.bonus(creature, 'any') ).toBe(21);
+    expect(skill.bonus(creature, 'any') ).toBe(10);
     skill.stat = 'test';
     expect(skill.bonus(creature, 'any(bbb)') ).toBe(6);
-    expect(skill.bonus(creature, 'any') ).toBe(23);
+    expect(skill.bonus(creature, 'any') ).toBe(12);
     skill.stat = 'test2';
     expect(skill.bonus(creature, 'any(bbb)') ).toBe(9);
-    expect(skill.bonus(creature, 'any') ).toBe(26);
+    expect(skill.bonus(creature, 'any') ).toBe(15);
     skill.stat = 'test3';
     expect(skill.bonus(creature, 'any(bbb)') ).toBe(11);
-    expect(skill.bonus(creature, 'any') ).toBe(28);
+    expect(skill.bonus(creature, 'any') ).toBe(17);
     skill.stat = 'test4';
     expect(skill.bonus(creature, 'any(bbb)') ).toBe(14);
-    expect(skill.bonus(creature, 'any') ).toBe(31);
+    expect(skill.bonus(creature, 'any') ).toBe(20);
   });
 });

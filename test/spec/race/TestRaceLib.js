@@ -18,7 +18,7 @@ describe('Factory: RaceLib', function() {
   } ) );
   it( 'Should checkRegistering', function() {
     expect( raceLib.checkRegistering ).toBeDefined();
-    spyOn(log, 'warn' ).and.callFake( console.log );
+    spyOn(log, 'warn' ).and.callFake( console.debug );
     var race = new abstractRace( 'test' );
     raceLib.register( 'test', race );
     expect( log.warn.calls.count() ).toBe( 0 );

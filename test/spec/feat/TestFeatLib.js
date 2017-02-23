@@ -16,7 +16,7 @@ describe('Factory: FeatLib', function() {
   } ) );
   it( 'Should checkRegistering', function() {
     expect( featLib.checkRegistering ).toBeDefined();
-    spyOn(log, 'warn' ).and.callFake( console.log );
+    spyOn(log, 'warn' ).and.callFake( console.debug );
     var feat = new abstractFeat( 'test' );
     skillLib.aaaa = true;
     featLib.register( 'test', feat );

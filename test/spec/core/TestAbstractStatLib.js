@@ -52,7 +52,7 @@ describe('Factory: AbstractStatLib', function() {
     });
     spyOn(engine, 'changed');
 
-    spyOn(log, 'warn' ).and.callFake(console.log);
+    spyOn(log, 'warn' ).and.callFake(console.debug);
     lib.changeValue(creature, 'aaa+2d8');
     expect(creature.test ).toBeDefined();
     expect(creature.test.aaa ).toBeDefined();
@@ -272,7 +272,7 @@ describe('Factory: AbstractStatLib', function() {
 
     creature.test = {};
     creature.test.bbb = {any: 1};
-    spyOn(log, 'warn' ).and.callFake(console.log);
+    spyOn(log, 'warn' ).and.callFake(console.debug);
     expect(lib.checkCondition(creature) ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb[ccc]>=1') ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb[ccc]>1') ).toBe(false);

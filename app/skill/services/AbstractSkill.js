@@ -22,12 +22,25 @@ angular.module( 'd20-engine' ).factory( 'AbstractSkill', function( $log, FeatLib
       return this.base;
     }
     if(matches[2] === 'any' || matches[3] === 'any' || matches[4] === 'any') {
+      var data = {
+        base_bonus: 0,
+        bonus: 0,
+        malus: 0,
+        bonus_limit: Number.POSITIVE_INFINITY,
+        malus_limit: 0
+      };
       _.forOwn(FeatLib.getBonuses(creature, this.id + '[' + target + ']'), function(value, key) {
         if(!variant || !variant.includes(key)) {
           $log.debug(key, value);
-          result = result + value.base_bonus + Math.min(value.bonus, value.bonus_limit) - Math.max(0, value.malus - value.malus_limit);
+          data.base_bonus += value.base_bonus;
+          data.bonus += value.bonus;
+          data.malus += value.malus;
+          data.bonus_limit = Math.min(data.bonus_limit, value.bonus_limit);
+          data.malus_limit += value.malus_limit;
         }
       });
+      $log.debug(data);
+      result = result + data.base_bonus + Math.min(data.bonus, data.bonus_limit) - Math.max(0, data.malus - data.malus_limit);
     }else{
       var bonus = FeatLib.getBonus(creature, this.id + '[' + target + ']');
       result = result + bonus.base_bonus + Math.min(bonus.bonus, bonus.bonus_limit) - Math.max(0, bonus.malus - bonus.malus_limit);
