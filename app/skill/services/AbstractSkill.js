@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module( 'd20-engine' ).factory( 'AbstractSkill', function( $log, FeatLib ) {
+angular.module( 'd20-engine' ).factory( 'AbstractSkill', function( $log, FeatLib, StatLib ) {
   var i = 0;
   function AbstractSkill( name ){
     this.min = 0;
@@ -15,7 +15,7 @@ angular.module( 'd20-engine' ).factory( 'AbstractSkill', function( $log, FeatLib
   }
   AbstractSkill.prototype.bonus = function(creature, target, variant) {
     $log.debug('############### Entering skill bonus computing ##################', creature, target, variant);
-    var result = this.base;
+    var result = this.base + (this.stat && StatLib.registered[this.stat] ? StatLib.getBonus(creature, this.stat) : 0);
     var matches = target.match(/^(([a-zA-Z_]+?)|([a-zA-Z_]+?)\(([a-zA-Z_]+?)\))$/);
     if(!matches) {
       $log.warn('Bonus target not well formatted, returning base.', target);

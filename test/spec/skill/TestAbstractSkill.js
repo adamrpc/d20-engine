@@ -5,9 +5,11 @@ describe('Factory: AbstractSkill', function() {
   var abstractFeat;
   var abstractSkill;
   var featLib;
+  var statLib;
   var log;
-  beforeEach( inject( function( $log, FeatLib, AbstractFeat, AbstractSkill ) {
+  beforeEach( inject( function( $log, FeatLib, StatLib, AbstractFeat, AbstractSkill ) {
     featLib = FeatLib;
+    statLib = StatLib;
     abstractFeat = AbstractFeat;
     abstractSkill = AbstractSkill;
     log = $log;
@@ -40,5 +42,29 @@ describe('Factory: AbstractSkill', function() {
     skill.base = 10;
     expect(skill.bonus(creature, 'any(bbb)') ).toBe(9);
     expect(skill.bonus(creature, 'any') ).toBe(26);
+    creature.stat = {'test': 5, 'test2': 10, 'test3': 15, 'test4': 20};
+    skill.stat = 'test5';
+    expect(skill.bonus(creature, 'any(bbb)') ).toBe(9);
+    expect(skill.bonus(creature, 'any') ).toBe(26);
+    statLib.registered.test5 = true;
+    statLib.registered.test = true;
+    statLib.registered.test2 = true;
+    statLib.registered.test3 = true;
+    statLib.registered.test4 = true;
+    skill.stat = 'test5';
+    expect(skill.bonus(creature, 'any(bbb)') ).toBe(4);
+    expect(skill.bonus(creature, 'any') ).toBe(21);
+    skill.stat = 'test';
+    expect(skill.bonus(creature, 'any(bbb)') ).toBe(6);
+    expect(skill.bonus(creature, 'any') ).toBe(23);
+    skill.stat = 'test2';
+    expect(skill.bonus(creature, 'any(bbb)') ).toBe(9);
+    expect(skill.bonus(creature, 'any') ).toBe(26);
+    skill.stat = 'test3';
+    expect(skill.bonus(creature, 'any(bbb)') ).toBe(11);
+    expect(skill.bonus(creature, 'any') ).toBe(28);
+    skill.stat = 'test4';
+    expect(skill.bonus(creature, 'any(bbb)') ).toBe(14);
+    expect(skill.bonus(creature, 'any') ).toBe(31);
   });
 });
