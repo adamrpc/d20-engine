@@ -172,4 +172,5 @@ describe('Factory: Engine', function() {
     expect(testLib.checkCondition.calls.count()).toBe( 0 );
     testLib2.checkCondition.calls.reset();
   });
+
 });

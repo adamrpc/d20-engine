@@ -50,5 +50,13 @@ angular.module( 'd20-engine' ).factory( 'StatusLib', function( $log, AbstractSta
     }
     Engine.changed(this.id, creature, parts[0]);
   };
+  StatusLib.prototype.super_getValue = StatusLib.prototype.getValue;
+  StatusLib.prototype.getValue = function(creature, name) {
+    var value = this.super_getValue(creature, name);
+    if(!_.isObject(value) || !_.has(value, 'value') || (_.has(value, 'time') && value.time <= 0)) {
+      return 0;
+    }
+    return value.value;
+  };
   return new StatusLib( 'status' );
 });

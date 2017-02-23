@@ -121,6 +121,16 @@ angular.module( 'd20-engine' ).factory( 'Engine', function( $log ) {
       return Math.random(1, parts[1] + 1);
     } ), function(value) { return value;} ).slice(Math.max(0, parts[0] - bestDices)));
   };
+  Engine.prototype.getValue = function(type, creature, name) {
+    if(!this.registeredLibs[type]) {
+      $log.warn('Lib ' + type + ' not existing, checking nothing, returning true.');
+      return true;
+    }
+    return this.registeredLibs[ type ].getValue(creature, name);
+  };
+  Engine.prototype.quote = function(str) {
+    return str.replace(/(?=[\/\\^$*+?.()|{}[\]])/g, "\\");
+  };
   var EngineProxy = new Proxy( Engine, {
     construct: function( Target, argumentsList ) {
       var newTarget = Object.create(Target.prototype);

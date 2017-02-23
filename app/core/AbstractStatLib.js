@@ -16,17 +16,22 @@ angular.module( 'd20-engine' ).factory( 'AbstractStatLib', function( $log, Engin
       that.changeValue(creature, value);
     });
   };
-  AbstractStatLib.prototype.prepareChange = function(creature, name, defaultValue, subName) {
+  AbstractStatLib.prototype.prepareChange = function(creature, name, defaultValue, subName, subSubName, any) {
     if(!creature[this.id]) {
       creature[this.id] = {};
     }
     if(!creature[this.id][name] && !subName) {
-      creature[this.id][name] = defaultValue;
+      creature[this.id][name] = any ? {any: defaultValue} : defaultValue;
     } else if(!creature[this.id][name] && subName) {
       creature[this.id][name] = {};
     }
-    if(subName && !creature[this.id][name][subName]) {
-      creature[this.id][name][subName] = defaultValue;
+    if(subName && !creature[this.id][name][subName] && !subSubName) {
+      creature[this.id][name][subName] = any ? {any: defaultValue} : defaultValue;
+    } else if(subName && !creature[this.id][name][subName] && subSubName) {
+      creature[this.id][name][subName] = {};
+    }
+    if(subName && subSubName && !creature[this.id][name][subName][subSubName]) {
+      creature[this.id][name][subName][subSubName] = defaultValue;
     }
     if(!creature.old) {
       creature.old = {};
@@ -34,10 +39,15 @@ angular.module( 'd20-engine' ).factory( 'AbstractStatLib', function( $log, Engin
     if(!creature.old[this.id]) {
       creature.old[ this.id ] = {};
     }
-    if(!creature.old[this.id][name] && subName) {
+    if(subName && !creature.old[this.id][name]) {
       creature.old[this.id][name] = {};
     }
-    if(subName) {
+    if(subName && subSubName && !creature.old[this.id][name][subName]) {
+      creature.old[this.id][name][subName] = {};
+    }
+    if(subName && subSubName) {
+      creature.old[this.id][name][subName][subSubName] = creature[this.id][name][subName][subSubName];
+    } else if(subName) {
       creature.old[this.id][name][subName] = creature[this.id][name][subName];
     } else {
       creature.old[this.id][name] = creature[this.id][name];
@@ -51,33 +61,32 @@ angular.module( 'd20-engine' ).factory( 'AbstractStatLib', function( $log, Engin
       $log.warn('AbstractStatLib.changeStat called with bad change parameter', change);
       return null;
     }
-    var parts = change.split(/[-+*/=]/);
-    var operator = parts.length > 0 ? change.substring(parts[ 0 ].length, parts[ 0 ].length + 1) : null;
-    var statNameParts = parts[0].split(/[\[\]]/);
-    var statName = parts[0];
-    var statSubName = null;
-    if(statNameParts.length === 3 && statNameParts[2] === '' && statNameParts[1] !== '' && statNameParts[0] !== '') {
-      statName = statNameParts[0];
-      statSubName = statNameParts[1];
-    }
-    if(parts.length !== 2 || statName === '' || (statSubName === null && statNameParts.length === 3) || (statNameParts.length !== 1 && statNameParts.length !== 3) || parts[1] === '' || !_.includes(['-', '+', '*', '/', '='], operator)) {
+    var parts = change.match(/^(([a-zA-Z_]+?)(\[(([a-zA-Z_]+?)|([a-zA-Z_]+)\(([a-zA-Z_]+?)\))])?)([-+*/=])([0-9]+|[0-9]+d[0-9]+)$/);
+    if(!parts || !parts[2] || !parts[8]) {
       $log.warn('AbstractStatLib.changeStat called with bad change parameter', change);
       return null;
     }
+    var operator = parts[8];
+    var statName = parts[2];
+    var statSubName = parts[5] ? parts[5] : parts[6];
+    var statSubSubName = parts[7];
     if( !!this.registered[statName] ) {
       $log.warn('Unknown value provided, changing anyway', statName);
     }
     var min = !!this.registered[statName] ? this.registered[ statName ].min : null;
     var max = !!this.registered[statName] ? this.registered[ statName ].max : null;
-    this.prepareChange(creature, statName, min ? min : 0, statSubName);
-    if( statSubName ) {
-      creature[ this.id ][ statName ][ statSubName ] = Engine.compute( creature[ this.id ][ statName ][ statSubName ], operator, parts[ 1 ], min, max );
+    this.prepareChange(creature, statName, min ? min : 0, statSubName, statSubSubName, true);
+    if( statSubSubName ) {
+      creature[ this.id ][ statName ][ statSubName ][statSubSubName] = Engine.compute( creature[ this.id ][ statName ][ statSubName ][statSubSubName], operator, parts[ 9 ], min, max );
+      $log.debug(statName + '[ ' + statSubName +' ][ ' + statSubSubName +' ] changed from ' + creature.old[this.id][statName][ statSubName ][statSubSubName] + ' to ' + creature[this.id][statName][ statSubName ][statSubSubName], creature);
+    } else if( statSubName ) {
+      creature[ this.id ][ statName ][ statSubName ].any = Engine.compute( creature[ this.id ][ statName ][ statSubName ].any, operator, parts[ 9 ], min, max );
       $log.debug(statName + '[ ' + statSubName +' ] changed from ' + creature.old[this.id][statName][ statSubName ] + ' to ' + creature[this.id][statName][ statSubName ], creature);
     } else {
-      creature[ this.id ][ statName ] = Engine.compute( creature[ this.id ][ statName ], operator, parts[ 1 ], min, max );
+      creature[ this.id ][ statName ].any = Engine.compute( creature[ this.id ][ statName ].any, operator, parts[ 9 ], min, max );
       $log.debug(statName + ' changed from ' + creature.old[this.id][statName] + ' to ' + creature[this.id][statName], creature);
     }
-    Engine.changed(this.id, creature, parts[0]);
+    Engine.changed(this.id, creature, parts[1]);
   };
   AbstractStatLib.prototype.changed = function(libName, creature, changes) {
     _.forOwn(this.registered,  function(value) {
@@ -90,40 +99,19 @@ angular.module( 'd20-engine' ).factory( 'AbstractStatLib', function( $log, Engin
       return true;
     }
     if(!condition) {
-      $log.warn('No condition provided, returning true.');
+      $log.info('No condition provided, returning true.');
       return true;
     }
-    var matches = condition.match(/^(.*?)(\[(.*)])?((>|<|>=|<=|=|!=)([0-9.]+)|(\?|!))$/);
+    var matches = condition.match(/^(([a-zA-Z_]+?)(\[(([a-zA-Z_]+?)|([a-zA-Z_]+)\(([a-zA-Z_]+?)\))])?)((>|<|>=|<=|=|!=)([0-9.]+)|(\?|!))$/);
     if(!matches) {
       $log.warn('Condition is not well formatted, unable to check, returning true.', condition);
       return true;
     }
-    var name = matches[1];
-    var subName = matches[3];
-    var numericComparison = matches[5];
-    var numericValue = matches[6];
-    var booleanComparison = matches[7];
-    if(!this.registered[name]) {
-      $log.warn('Unknown stat, checking anyway.', name);
-    }
-    var currentValue = null;
-    if(_.has(creature, this.id) && _.has(creature[this.id], name)) {
-      if(subName && _.has(creature[this.id][name], subName)) {
-        currentValue = creature[this.id][name][subName];
-      }else if(!subName) {
-        currentValue = creature[this.id][name];
-      }
-    }
+    var numericComparison = matches[9];
+    var numericValue = matches[10];
+    var booleanComparison = matches[11];
+    var currentValue = this.getValue(creature, matches[1]);
     if(numericComparison) {
-      if(isNaN(numericValue)) {
-        $log.warn('Can\'t process numeric check with non numeric value, returning true.', condition);
-        return true;
-      }
-      if(currentValue === null) {
-        currentValue = 0;
-      }else if(_.isObject(currentValue)) {
-        currentValue = _.keys(currentValue ).length;
-      }
       numericValue = parseFloat(numericValue);
       switch(numericComparison) {
         case '>':
@@ -152,6 +140,41 @@ angular.module( 'd20-engine' ).factory( 'AbstractStatLib', function( $log, Engin
           return true;
       }
     }
+  };
+  AbstractStatLib.prototype.getValue = function(creature, name) {
+    if(!_.has(creature, this.id)) {
+      $log.warn(this.id + ' property not found while computing value, returning 0.');
+      return 0;
+    }
+    var data = creature[this.id];
+    var matches = name.match(/^([a-zA-Z_]+?)(\[(([a-zA-Z_]+?)|([a-zA-Z_]+)\(([a-zA-Z_]+?)\))])?$/);
+    if(!matches) {
+      $log.warn('Bad property formatting (' + name +') while computing value, returning 0.');
+      return 0;
+    }
+    var part1 = matches[1];
+    if(!_.has(data, part1)) {
+      return 0;
+    }
+    data = data[part1];
+    var part2 = matches[4] ? matches[4] : matches[5];
+    if((!part2 || (part2 && !_.has(data, part2))) && _.isObject(data) && !_.has(data, 'any')) {
+      return 0;
+    } else if((part2 && !_.has(data, part2) && !_.isObject(data)) || (!part2 && !_.isObject(data))) {
+      return data;
+    } else if((!part2 || !_.has(data, part2)) && _.isObject(data) && _.has(data, 'any')) {
+      return data.any;
+    }
+    data = data[part2];
+    var part3 = matches[6];
+    if((!part3 || (part3 && !_.has(data, part3))) && _.isObject(data) && !_.has(data, 'any')) {
+      return 0;
+    } else if((part3 && !_.has(data, part3) && !_.isObject(data)) || (!part3 && !_.isObject(data))) {
+      return data;
+    } else if((!part3 || !_.has(data, part3)) && _.isObject(data) && _.has(data, 'any')) {
+      return data.any;
+    }
+    return data[part3];
   };
   return AbstractStatLib;
 });

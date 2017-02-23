@@ -26,7 +26,9 @@ describe('Factory: FeatLib', function() {
     feat.bonuses.push('+bbb+2;');
     feat.bonuses.push('ccc*2;');
     feat.bonuses.push('+ddd[#]+4;');
-    feat.bonuses.push('limit(1j)|eee[#]=level;fff[#]=stat[ggg];spell(#);');
+    feat.bonuses.push('uop(1bbb)|xxx;');
+    feat.bonuses.push('uop(1bbb)|yyy[#];');
+    feat.bonuses.push('uop(1bbb)|eee[ggg(#)];');
     feat.bonuses.push('!-hhh[#]-4;');
     feat.bonuses.push('-jjj[#]-5;');
     feat.bonuses.push('!-kkk[#];');
@@ -43,18 +45,16 @@ describe('Factory: FeatLib', function() {
     feat.bonuses.push('vvv[spell(#)]+2;');
     feat.bonuses.push('www[effect(#)]+2;');
     feat.bonuses.push('!+yyy+4;');
-    feat.bonuses.push('limit(1j)|xxx;');
-    feat.bonuses.push('limit(1j)|yyy[#];');
-    feat.bonuses.push('skill(#).lvl<5|#+2;');
-    feat.bonuses.push('skill(#).lvl<5|+#+3;');
-    feat.bonuses.push('skill(#).lvl<=5|#+2;');
-    feat.bonuses.push('skill(#).lvl<=5|+#+3;');
-    feat.bonuses.push('skill(#).lvl>=5|#+2;');
-    feat.bonuses.push('skill(#).lvl>=5|+#+3;');
-    feat.bonuses.push('skill(#).lvl>5|#+2;');
-    feat.bonuses.push('skill(#).lvl>5|+#+3;');
-    feat.bonuses.push('skill(#).lvl=5|#+2;');
-    feat.bonuses.push('skill(#).lvl=5|+#+3;');
+    feat.bonuses.push('uop(#<5)|#+2;');
+    feat.bonuses.push('uop(#<5)|+#+3;');
+    feat.bonuses.push('uop(#<=5)|#+2;');
+    feat.bonuses.push('uop(#<=5)|+#+3;');
+    feat.bonuses.push('uop(#>=5)|#+2;');
+    feat.bonuses.push('uop(#>=5)|+#+3;');
+    feat.bonuses.push('uop(#>5)|#+2;');
+    feat.bonuses.push('uop(#>5)|+#+3;');
+    feat.bonuses.push('uop(#=5)|#+2;');
+    feat.bonuses.push('uop(#=5)|+#+3;');
 
 
     feat.bonuses.push('+aaaa-2;');
@@ -64,15 +64,8 @@ describe('Factory: FeatLib', function() {
     feat.bonuses.push('!-aaaa[#]+;');
     feat.bonuses.push('!-aaaa[#]-;');
     feat.bonuses.push('!+aaaa[#]-2;');
-    feat.bonuses.push('limit(1j)|aaaa[#]=level;aaaa[#]=ddd[bbbb];spell(#);');
-    feat.bonuses.push('limit(1j)|aaaa[#]=eee;aaaa[#]=stat[bbbb];spell(#);');
-    feat.bonuses.push('fff(1j)|aaaa[#]=level;aaaa[#]=stat[bbbb];spell(#);');
-    feat.bonuses.push('ggg(#).lvl<5|#+2;');
-    feat.bonuses.push('skill(#).hhh<5|#+2;');
-    feat.bonuses.push('iii(1j)|aaaa;');
-    feat.bonuses.push('limit(jjj)|aaaa;');
     featLib.register( 'test0', feat );
-    expect( log.warn.calls.count( ) ).toBe( 39 );
+    expect( log.warn.calls.count( ) ).toBe( 31 );
     log.warn.calls.reset();
     skillLib.aaa = true;
     skillLib.bbb = true;
@@ -100,7 +93,88 @@ describe('Factory: FeatLib', function() {
     skillLib.xxx = true;
     skillLib.yyy = true;
     featLib.register( 'test1', feat );
-    expect( log.warn.calls.count( ) ).toBe( 14 );
+    expect( log.warn.calls.count( ) ).toBe( 7 );
     log.warn.calls.reset();
   } );
+  it( 'Should return single bonus', function() {
+    expect( featLib.getBonus ).toBeDefined();
+    var aaaFeat = new abstractFeat('aaa');
+    aaaFeat.bonuses = ['+ddd[eee(#)]+1', 'ddd[fff(#)]+2', 'ddd[ggg(#)]-3'];
+    var cccFeat = new abstractFeat('ccc');
+    cccFeat.bonuses = ['+ddd[eee(bbb)]+5', '!+ddd[fff(bbb)]+1', '!-ddd[ggg(bbb)]-2'];
+    featLib.register('aaa', aaaFeat);
+    featLib.register('ccc', cccFeat);
+    var creature = {
+      feat: {
+        aaa: {
+          any: 0,
+          bbb: {
+            any: 1
+          }
+        },
+        ccc: {
+          any: 1
+        }
+      }
+    };
+    var result = featLib.getBonus(creature, 'ddd[eee(bbb)]');
+    expect(result.base_bonus ).toBe(6);
+    expect(result.bonus ).toBe(0);
+    expect(result.malus ).toBe(0);
+    expect(result.bonus_limit ).toBe(Number.POSITIVE_INFINITY);
+    expect(result.malus_limit ).toBe(0);
+    result = featLib.getBonus(creature, 'ddd[fff(bbb)]');
+    expect(result.base_bonus ).toBe(0);
+    expect(result.bonus ).toBe(2);
+    expect(result.malus ).toBe(0);
+    expect(result.bonus_limit ).toBe(1);
+    expect(result.malus_limit ).toBe(0);
+    result = featLib.getBonus(creature, 'ddd[ggg(bbb)]');
+    expect(result.base_bonus ).toBe(0);
+    expect(result.bonus ).toBe(0);
+    expect(result.malus ).toBe(3);
+    expect(result.bonus_limit ).toBe(Number.POSITIVE_INFINITY);
+    expect(result.malus_limit ).toBe(2);
+  });
+  it( 'Should return multiple bonuses', function() {
+    expect( featLib.getBonus ).toBeDefined();
+    var aaaFeat = new abstractFeat('aaa');
+    aaaFeat.bonuses = ['+ddd[eee(#)]+1', 'ddd[fff(#)]+2', 'ddd[ggg(#)]-3'];
+    var cccFeat = new abstractFeat('ccc');
+    cccFeat.bonuses = ['+ddd[eee(bbb)]+5', '!+ddd[fff(bbb)]+1', '!-ddd[ggg(bbb)]-2'];
+    featLib.register('aaa', aaaFeat);
+    featLib.register('ccc', cccFeat);
+    var creature = {
+      feat: {
+        aaa: {
+          any: 0,
+          bbb: {
+            any: 1
+          }
+        },
+        ccc: {
+          any: 1
+        }
+      }
+    };
+    var result = featLib.getBonuses(creature, 'ddd[any(bbb)]');
+    expect(result.eee ).toBeDefined();
+    expect(result.fff ).toBeDefined();
+    expect(result.ggg ).toBeDefined();
+    expect(result.eee.base_bonus ).toBe(6);
+    expect(result.eee.bonus ).toBe(0);
+    expect(result.eee.malus ).toBe(0);
+    expect(result.eee.bonus_limit ).toBe(Number.POSITIVE_INFINITY);
+    expect(result.eee.malus_limit ).toBe(0);
+    expect(result.fff.base_bonus ).toBe(0);
+    expect(result.fff.bonus ).toBe(2);
+    expect(result.fff.malus ).toBe(0);
+    expect(result.fff.bonus_limit ).toBe(1);
+    expect(result.fff.malus_limit ).toBe(0);
+    expect(result.ggg.base_bonus ).toBe(0);
+    expect(result.ggg.bonus ).toBe(0);
+    expect(result.ggg.malus ).toBe(3);
+    expect(result.ggg.bonus_limit ).toBe(Number.POSITIVE_INFINITY);
+    expect(result.ggg.malus_limit ).toBe(2);
+  });
 });

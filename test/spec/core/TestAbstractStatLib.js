@@ -3,6 +3,7 @@
 describe('Factory: AbstractStatLib', function() {
   beforeEach( module( 'd20-engine' ) );
   var abstractLib;
+  var log;
   var engine = {
     compute: function(){},
     registerLib: function(){},
@@ -11,8 +12,9 @@ describe('Factory: AbstractStatLib', function() {
   beforeEach(module(function ($provide) {
     $provide.value('Engine', engine);
   }));
-  beforeEach( inject( function( AbstractStatLib ) {
+  beforeEach( inject( function( AbstractStatLib, $log ) {
     abstractLib = AbstractStatLib;
+    log = $log;
   } ) );
   it('Should changeValue', function() {
     spyOn(engine, 'registerLib');
@@ -50,10 +52,12 @@ describe('Factory: AbstractStatLib', function() {
     });
     spyOn(engine, 'changed');
 
+    spyOn(log, 'warn' ).and.callFake(console.log);
     lib.changeValue(creature, 'aaa+2d8');
     expect(creature.test ).toBeDefined();
     expect(creature.test.aaa ).toBeDefined();
-    expect(creature.test.aaa ).toBe( 7 );
+    expect(creature.test.aaa.any ).toBeDefined();
+    expect(creature.test.aaa.any ).toBe( 7 );
     expect(engine.compute.calls.count()).toBe( 1 );
     expect(engine.compute).toHaveBeenCalledWith( 0, '+', '2d8', null, null );
     engine.compute.calls.reset();
@@ -64,7 +68,7 @@ describe('Factory: AbstractStatLib', function() {
     lib.registered.aaa = {min:0, max:10};
 
     lib.changeValue(creature, 'aaa+2d8');
-    expect(creature.test.aaa ).toBe( 14 );
+    expect(creature.test.aaa.any ).toBe( 14 );
     expect(engine.compute.calls.count()).toBe( 1 );
     expect(engine.compute).toHaveBeenCalledWith( 7, '+', '2d8', 0, 10 );
     engine.compute.calls.reset();
@@ -112,7 +116,8 @@ describe('Factory: AbstractStatLib', function() {
     expect(creature.test ).toBeDefined();
     expect(creature.test.aaa ).toBeDefined();
     expect(creature.test.aaa.ddd ).toBeDefined();
-    expect(creature.test.aaa.ddd ).toBe( 7 );
+    expect(creature.test.aaa.ddd.any ).toBeDefined();
+    expect(creature.test.aaa.ddd.any ).toBe( 7 );
     expect(engine.compute.calls.count()).toBe( 1 );
     expect(engine.compute).toHaveBeenCalledWith( 0, '+', '2d8', null, null );
     engine.compute.calls.reset();
@@ -123,12 +128,36 @@ describe('Factory: AbstractStatLib', function() {
     lib.registered.aaa = {min:0, max:10};
 
     lib.changeValue(creature, 'aaa[ddd]+2d8');
-    expect(creature.test.aaa.ddd ).toBe( 14 );
+    expect(creature.test.aaa.ddd.any ).toBe( 14 );
     expect(engine.compute.calls.count()).toBe( 1 );
     expect(engine.compute).toHaveBeenCalledWith( 7, '+', '2d8', 0, 10 );
     engine.compute.calls.reset();
     expect(engine.changed.calls.count()).toBe( 1 );
     expect(engine.changed).toHaveBeenCalledWith( 'test', creature, 'aaa[ddd]' );
+    engine.changed.calls.reset();
+
+    lib.changeValue(creature, 'bbb[eee(fff)]+2d8');
+    expect(creature.test ).toBeDefined();
+    expect(creature.test.bbb ).toBeDefined();
+    expect(creature.test.bbb.eee ).toBeDefined();
+    expect(creature.test.bbb.eee.fff ).toBeDefined();
+    expect(creature.test.bbb.eee.fff ).toBe( 7 );
+    expect(engine.compute.calls.count()).toBe( 1 );
+    expect(engine.compute).toHaveBeenCalledWith( 0, '+', '2d8', null, null );
+    engine.compute.calls.reset();
+    expect(engine.changed.calls.count()).toBe( 1 );
+    expect(engine.changed).toHaveBeenCalledWith( 'test', creature, 'bbb[eee(fff)]' );
+    engine.changed.calls.reset();
+
+    lib.registered.bbb = {min:0, max:10};
+
+    lib.changeValue(creature, 'bbb[eee(fff)]+2d8');
+    expect(creature.test.bbb.eee.fff ).toBe( 14 );
+    expect(engine.compute.calls.count()).toBe( 1 );
+    expect(engine.compute).toHaveBeenCalledWith( 7, '+', '2d8', 0, 10 );
+    engine.compute.calls.reset();
+    expect(engine.changed.calls.count()).toBe( 1 );
+    expect(engine.changed).toHaveBeenCalledWith( 'test', creature, 'bbb[eee(fff)]' );
     engine.changed.calls.reset();
   });
   it('Should register', function() {
@@ -242,18 +271,19 @@ describe('Factory: AbstractStatLib', function() {
     expect(lib.checkCondition(creature, 'bbb!') ).toBe(true);
 
     creature.test = {};
-    creature.test.bbb = 1;
+    creature.test.bbb = {any: 1};
+    spyOn(log, 'warn' ).and.callFake(console.log);
     expect(lib.checkCondition(creature) ).toBe(true);
-    expect(lib.checkCondition(creature, 'bbb[ccc]>=1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]>=1') ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb[ccc]>1') ).toBe(false);
-    expect(lib.checkCondition(creature, 'bbb[ccc]=1') ).toBe(false);
-    expect(lib.checkCondition(creature, 'bbb[ccc]!=1') ).toBe(true);
-    expect(lib.checkCondition(creature, 'bbb[ccc]=0') ).toBe(true);
-    expect(lib.checkCondition(creature, 'bbb[ccc]!=0') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]=1') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!=1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]=0') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!=0') ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb[ccc]<=1') ).toBe(true);
-    expect(lib.checkCondition(creature, 'bbb[ccc]<1') ).toBe(true);
-    expect(lib.checkCondition(creature, 'bbb[ccc]?') ).toBe(false);
-    expect(lib.checkCondition(creature, 'bbb[ccc]!') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]<1') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb[ccc]?') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb[ccc]!') ).toBe(false);
     expect(lib.checkCondition(creature, 'bbb>=1') ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb>1') ).toBe(false);
     expect(lib.checkCondition(creature, 'bbb=1') ).toBe(true);
@@ -265,8 +295,8 @@ describe('Factory: AbstractStatLib', function() {
     expect(lib.checkCondition(creature, 'bbb?') ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb!') ).toBe(false);
 
-    creature.test.bbb = {};
-    creature.test.bbb.ccc = 2;
+    creature.test.bbb = {any: 1};
+    creature.test.bbb.ccc = {any: 2};
     expect(lib.checkCondition(creature) ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb[ccc]>=2') ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb[ccc]>2') ).toBe(false);
@@ -289,7 +319,7 @@ describe('Factory: AbstractStatLib', function() {
     expect(lib.checkCondition(creature, 'bbb?') ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb!') ).toBe(false);
 
-    creature.test.bbb.ddd = 2;
+    creature.test.bbb.ddd = {any: 2};
     expect(lib.checkCondition(creature, 'bbb[ccc]>=2') ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb[ccc]>2') ).toBe(false);
     expect(lib.checkCondition(creature, 'bbb[ccc]=2') ).toBe(true);
@@ -310,15 +340,49 @@ describe('Factory: AbstractStatLib', function() {
     expect(lib.checkCondition(creature, 'bbb[ddd]<2') ).toBe(false);
     expect(lib.checkCondition(creature, 'bbb[ddd]?') ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb[ddd]!') ).toBe(false);
-    expect(lib.checkCondition(creature, 'bbb>=2') ).toBe(true);
+    expect(lib.checkCondition(creature, 'bbb>=2') ).toBe(false);
     expect(lib.checkCondition(creature, 'bbb>2') ).toBe(false);
-    expect(lib.checkCondition(creature, 'bbb=2') ).toBe(true);
-    expect(lib.checkCondition(creature, 'bbb!=2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb=2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb!=2') ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb=0') ).toBe(false);
     expect(lib.checkCondition(creature, 'bbb!=0') ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb<=2') ).toBe(true);
-    expect(lib.checkCondition(creature, 'bbb<2') ).toBe(false);
+    expect(lib.checkCondition(creature, 'bbb<2') ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb?') ).toBe(true);
     expect(lib.checkCondition(creature, 'bbb!') ).toBe(false);
+  });
+  it('Should return property value', function() {
+    spyOn(engine, 'registerLib');
+    var lib = new abstractLib('test');
+    expect(engine.registerLib.calls.count()).toBe( 1 );
+    expect(engine.registerLib).toHaveBeenCalledWith( 'test', lib );
+    expect(lib.getValue).toBeDefined();
+
+    var creature = {};
+    expect(lib.getValue(creature, 'aaa[bbb(ccc)]')).toBe( 0 );
+    creature.test = {};
+    expect(lib.getValue(creature, 'aaa[bbb(ccc)]')).toBe( 0 );
+    creature.test.aaa = 2;
+    expect(lib.getValue(creature, 'aaa[bbb(ccc)]')).toBe( 2 );
+    creature.test.aaa = {};
+    expect(lib.getValue(creature, 'aaa[bbb(ccc)]')).toBe( 0 );
+    creature.test.aaa.bbb = 3;
+    expect(lib.getValue(creature, 'aaa[bbb(ccc)]')).toBe( 3 );
+    creature.test.aaa.bbb = {};
+    expect(lib.getValue(creature, 'aaa[bbb(ccc)]')).toBe( 0 );
+    creature.test.aaa.bbb.ccc = 5;
+    expect(lib.getValue(creature, 'aaa[bbb(ccc)]')).toBe( 5 );
+    creature.test.ddd = 7;
+    expect(lib.getValue(creature, 'ddd')).toBe( 7 );
+    creature.test.ddd = {eee: 11};
+    expect(lib.getValue(creature, 'ddd[eee]')).toBe( 11 );
+    creature.test.ddd = {eee: {any: 13}};
+    expect(lib.getValue(creature, 'ddd[eee]')).toBe( 13 );
+    creature.test.ddd = {any: 17, eee: {any: 13, fff: 5}};
+    expect(lib.getValue(creature, 'ddd')).toBe( 17 );
+    expect(lib.getValue(creature, 'ddd[ggg]')).toBe( 17 );
+    expect(lib.getValue(creature, 'ddd[eee]')).toBe( 13 );
+    expect(lib.getValue(creature, 'ddd[eee(fff)]')).toBe( 5 );
+    expect(lib.getValue(creature, 'ddd[eee(hhh)]')).toBe( 13 );
   });
 });

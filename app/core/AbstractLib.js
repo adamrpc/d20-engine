@@ -34,6 +34,37 @@ angular.module( 'd20-engine' ).factory( 'AbstractLib', function( $log, Engine ) 
   };
   AbstractLib.prototype.checkCondition = function() {};
   AbstractLib.prototype.checkRegistering = function() { return []; };
+  AbstractLib.prototype.getValue = function(creature, name) {
+    if(!_.has(creature, this.id)) {
+      $log.warn(this.id + ' property not found while computing value, returning 0.');
+      return 0;
+    }
+    var data = creature[this.id];
+    var matches = name.match(/^([a-zA-Z_]+?)(\[(([a-zA-Z_]+?)|([a-zA-Z_]+)\(([a-zA-Z_]+?)\))])?$/);
+    if(!matches) {
+      $log.warn('Bad property formatting (' + name +') while computing value, returning 0.');
+      return 0;
+    }
+    var part1 = matches[1];
+    if(!_.has(data, part1)) {
+      return 0;
+    }
+    data = data[part1];
+    var part2 = matches[4] ? matches[4] : matches[5];
+    if(part2 && !_.has(data, part2)) {
+      return 0;
+    } else if(!part2) {
+      return data;
+    }
+    data = data[part2];
+    var part3 = matches[6];
+    if(part3 && !_.has(data, part3)) {
+      return 0;
+    } else if(!part3) {
+      return data;
+    }
+    return data[part3];
+  };
   AbstractLib.prototype.register = function(name, value) {
     if(!!this.registered[name]) {
       $log.warn('Stat ' + name + ' already defined, overwriting.', this.registered[name], value);
