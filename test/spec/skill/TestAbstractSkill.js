@@ -2,25 +2,25 @@
 
 describe('Factory: AbstractSkill', function() {
   beforeEach( module( 'd20-engine' ) );
-  var abstractFeat;
-  var abstractSkill;
+  var AbstractFeatConstructor;
+  var AbstractSkillConstructor;
   var featLib;
   var statLib;
   var log;
   beforeEach( inject( function( $log, FeatLib, StatLib, AbstractFeat, AbstractSkill ) {
     featLib = FeatLib;
     statLib = StatLib;
-    abstractFeat = AbstractFeat;
-    abstractSkill = AbstractSkill;
+    AbstractFeatConstructor = AbstractFeat;
+    AbstractSkillConstructor = AbstractSkill;
     log = $log;
   } ) );
 
   it( 'Should return bonus', function() {
-    var skill = new abstractSkill('ddd');
+    var skill = new AbstractSkillConstructor('ddd');
     expect( skill.bonus ).toBeDefined();
-    var aaaFeat = new abstractFeat('aaa');
+    var aaaFeat = new AbstractFeatConstructor('aaa');
     aaaFeat.bonuses = ['+ddd[eee(#)]+1', 'ddd[fff(#)]+2', 'ddd[ggg(#)]-3', '+ddd[eee]+7', 'ddd[fff]+13', 'ddd[ggg]-19'];
-    var cccFeat = new abstractFeat('ccc');
+    var cccFeat = new AbstractFeatConstructor('ccc');
     cccFeat.bonuses = ['+ddd[eee(bbb)]+5', '!+ddd[fff(bbb)]+1', '!-ddd[ggg(bbb)]-2', '+ddd[eee]+7', 'ddd[fff]+13', 'ddd[ggg]-19', '!+ddd[fff]+11', '!-ddd[ggg]-17'];
     featLib.register('aaa', aaaFeat);
     featLib.register('ccc', cccFeat);

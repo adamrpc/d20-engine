@@ -5,7 +5,7 @@ describe('Factory: RaceLib', function() {
   var raceLib;
   var featLib = {};
   var statLib = {};
-  var abstractRace;
+  var AbstractRaceConstructor;
   var log;
   beforeEach(module(function ($provide) {
     $provide.value('FeatLib', featLib);
@@ -14,12 +14,12 @@ describe('Factory: RaceLib', function() {
   beforeEach( inject( function( $log, RaceLib, AbstractRace ) {
     log = $log;
     raceLib = RaceLib;
-    abstractRace = AbstractRace;
+    AbstractRaceConstructor = AbstractRace;
   } ) );
   it( 'Should checkRegistering', function() {
     expect( raceLib.checkRegistering ).toBeDefined();
     spyOn(log, 'warn' ).and.callFake( console.debug );
-    var race = new abstractRace( 'test' );
+    var race = new AbstractRaceConstructor( 'test' );
     raceLib.register( 'test', race );
     expect( log.warn.calls.count() ).toBe( 0 );
     race.feats.push( 'aaa' );

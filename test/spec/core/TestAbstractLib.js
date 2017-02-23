@@ -2,7 +2,7 @@
 
 describe('Factory: AbstractLib', function() {
   beforeEach( module( 'd20-engine' ) );
-  var abstractLib;
+  var AbstractLibConstructor;
   var engine = {
     registerLib: function(){},
     checkCondition: function(){}
@@ -11,11 +11,11 @@ describe('Factory: AbstractLib', function() {
     $provide.value('Engine', engine);
   }));
   beforeEach( inject( function( AbstractLib ) {
-    abstractLib = AbstractLib;
+    AbstractLibConstructor = AbstractLib;
   } ) );
   it('Should check each condition', function() {
     spyOn(engine, 'registerLib');
-    var lib = new abstractLib('test');
+    var lib = new AbstractLibConstructor('test');
     expect(engine.registerLib.calls.count()).toBe( 1 );
     expect(engine.registerLib).toHaveBeenCalledWith( 'test', lib );
 

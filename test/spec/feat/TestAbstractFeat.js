@@ -2,28 +2,28 @@
 
 describe('Factory: AbstractFeat', function() {
   beforeEach( module( 'd20-engine' ) );
-  var abstractFeat;
+  var AbstractFeatConstructor;
   var featLib;
   var log;
   beforeEach( inject( function( $log, FeatLib, AbstractFeat ) {
     featLib = FeatLib;
-    abstractFeat = AbstractFeat;
+    AbstractFeatConstructor = AbstractFeat;
     log = $log;
   } ) );
-  function checkBonus(value, base_bonus, bonus, malus, malus_limit, bonus_limit) {
-    expect(value.base_bonus ).toBeDefined();
-    expect(value.base_bonus ).toBe(base_bonus);
+  function checkBonus(value, baseBonus, bonus, malus, malusLimit, bonusLimit) {
+    expect(value.baseBonus ).toBeDefined();
+    expect(value.baseBonus ).toBe(baseBonus);
     expect(value.bonus ).toBeDefined();
     expect(value.bonus ).toBe(bonus);
     expect(value.malus ).toBeDefined();
     expect(value.malus ).toBe(malus);
-    expect(value.malus_limit ).toBeDefined();
-    expect(value.malus_limit ).toBe(malus_limit);
-    expect(value.bonus_limit ).toBeDefined();
-    expect(value.bonus_limit ).toBe(bonus_limit);
+    expect(value.malusLimit ).toBeDefined();
+    expect(value.malusLimit ).toBe(malusLimit);
+    expect(value.bonusLimit ).toBeDefined();
+    expect(value.bonusLimit ).toBe(bonusLimit);
   }
   it( 'Should return 0 bonus if the creature does not have the feat', function() {
-    var feat = new abstractFeat('test');
+    var feat = new AbstractFeatConstructor('test');
     featLib.register(feat.id, feat);
     feat.bonuses = [
       '+aaa[bbb(ccc)]+73', 'aaa[bbb(ccc)]+79', '-aaa[bbb(ccc)]-83', '!-aaa[bbb(ccc)]-89', '!+aaa[bbb(ccc)]+91',
@@ -48,7 +48,7 @@ describe('Factory: AbstractFeat', function() {
     checkBonus(result.any, 0, 0, 0, 0, 0);
   } );
   it( 'Should return 0 bonus if the creature have level 0 in feat', function() {
-    var feat = new abstractFeat('test');
+    var feat = new AbstractFeatConstructor('test');
     featLib.register(feat.id, feat);
     feat.bonuses = [
       '+aaa[bbb(ccc)]+73', 'aaa[bbb(ccc)]+79', '-aaa[bbb(ccc)]-83', '!-aaa[bbb(ccc)]-89', '!+aaa[bbb(ccc)]+91',
@@ -89,7 +89,7 @@ describe('Factory: AbstractFeat', function() {
   } );
 
   it( 'Should return the bonus if the creature have the feat', function() {
-    var feat = new abstractFeat('test');
+    var feat = new AbstractFeatConstructor('test');
     featLib.register(feat.id, feat);
     feat.bonuses = [
       '+aaa[bbb(ccc)]+73', 'aaa[bbb(ccc)]+79', '-aaa[bbb(ccc)]-83', '!-aaa[bbb(ccc)]-89', '!+aaa[bbb(ccc)]+91',
@@ -149,7 +149,7 @@ describe('Factory: AbstractFeat', function() {
     checkBonus(result, 11, 13, 17, 19, 23);
   } );
   it( 'Should return the bonus if the creature have the feat and match condition', function() {
-    var feat = new abstractFeat('test');
+    var feat = new AbstractFeatConstructor('test');
     featLib.register(feat.id, feat);
     feat.bonuses = [
       'feat(test[ddd]>1)|+aaa[bbb(ccc)]+73', 'feat(test[ddd]>1)|aaa[bbb(ccc)]+79', 'feat(test[ddd]>1)|-aaa[bbb(ccc)]-83', 'feat(test[ddd]>1)|!-aaa[bbb(ccc)]-89', 'feat(test[ddd]>1)|!+aaa[bbb(ccc)]+91',

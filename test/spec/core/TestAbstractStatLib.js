@@ -2,7 +2,7 @@
 
 describe('Factory: AbstractStatLib', function() {
   beforeEach( module( 'd20-engine' ) );
-  var abstractLib;
+  var AbstractLibConstructor;
   var log;
   var engine = {
     compute: function(){},
@@ -13,12 +13,12 @@ describe('Factory: AbstractStatLib', function() {
     $provide.value('Engine', engine);
   }));
   beforeEach( inject( function( AbstractStatLib, $log ) {
-    abstractLib = AbstractStatLib;
+    AbstractLibConstructor = AbstractStatLib;
     log = $log;
   } ) );
   it('Should changeValue', function() {
     spyOn(engine, 'registerLib');
-    var lib = new abstractLib('test');
+    var lib = new AbstractLibConstructor('test');
     expect(engine.registerLib.calls.count()).toBe( 1 );
     expect(engine.registerLib).toHaveBeenCalledWith( 'test', lib );
 
@@ -78,7 +78,7 @@ describe('Factory: AbstractStatLib', function() {
   });
   it('Should changeValue with subType', function() {
     spyOn(engine, 'registerLib');
-    var lib = new abstractLib('test');
+    var lib = new AbstractLibConstructor('test');
     expect(engine.registerLib.calls.count()).toBe( 1 );
     expect(engine.registerLib).toHaveBeenCalledWith( 'test', lib );
 
@@ -162,7 +162,7 @@ describe('Factory: AbstractStatLib', function() {
   });
   it('Should register', function() {
     spyOn(engine, 'registerLib');
-    var lib = new abstractLib('test');
+    var lib = new AbstractLibConstructor('test');
     expect(engine.registerLib.calls.count()).toBe( 1 );
     expect(engine.registerLib).toHaveBeenCalledWith( 'test', lib );
 
@@ -174,7 +174,7 @@ describe('Factory: AbstractStatLib', function() {
   });
   it('Should call changed', function() {
     spyOn(engine, 'registerLib');
-    var lib = new abstractLib('test');
+    var lib = new AbstractLibConstructor('test');
     expect(engine.registerLib.calls.count()).toBe( 1 );
     expect(engine.registerLib).toHaveBeenCalledWith( 'test', lib );
 
@@ -194,7 +194,7 @@ describe('Factory: AbstractStatLib', function() {
   });
   it('Should prepareChange', function() {
     spyOn(engine, 'registerLib');
-    var lib = new abstractLib('test');
+    var lib = new AbstractLibConstructor('test');
     expect(engine.registerLib.calls.count()).toBe( 1 );
     expect(engine.registerLib).toHaveBeenCalledWith( 'test', lib );
 
@@ -211,13 +211,13 @@ describe('Factory: AbstractStatLib', function() {
   });
   it('Should change', function() {
     spyOn(engine, 'registerLib');
-    var lib = new abstractLib('test');
+    var lib = new AbstractLibConstructor('test');
     expect(engine.registerLib.calls.count()).toBe( 1 );
     expect(engine.registerLib).toHaveBeenCalledWith( 'test', lib );
 
     expect(lib.change).toBeDefined();
 
-    spyOn(abstractLib.prototype, 'changeValue');
+    spyOn(AbstractLibConstructor.prototype, 'changeValue');
     lib.change();
 
     expect(lib.changeValue.calls.count()).toBe(0);
@@ -240,7 +240,7 @@ describe('Factory: AbstractStatLib', function() {
   });
   it('Should check a condition', function() {
     spyOn(engine, 'registerLib');
-    var lib = new abstractLib('test');
+    var lib = new AbstractLibConstructor('test');
     expect(engine.registerLib.calls.count()).toBe( 1 );
     expect(engine.registerLib).toHaveBeenCalledWith( 'test', lib );
 
@@ -353,7 +353,7 @@ describe('Factory: AbstractStatLib', function() {
   });
   it('Should return property value', function() {
     spyOn(engine, 'registerLib');
-    var lib = new abstractLib('test');
+    var lib = new AbstractLibConstructor('test');
     expect(engine.registerLib.calls.count()).toBe( 1 );
     expect(engine.registerLib).toHaveBeenCalledWith( 'test', lib );
     expect(lib.getValue).toBeDefined();

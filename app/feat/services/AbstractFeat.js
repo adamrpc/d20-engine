@@ -21,18 +21,18 @@ angular.module( 'd20-engine' ).factory( 'AbstractFeat', function( $log, Engine )
     var multipleBonuses = skill1 === 'any' || skill2 === 'any' || skill3 === 'any';
     var result = {};
     if(!multipleBonuses) {
-      result.base_bonus = 0;
+      result.baseBonus = 0;
       result.bonus = 0;
       result.malus = 0;
-      result.malus_limit = 0;
-      result.bonus_limit = Number.POSITIVE_INFINITY;
+      result.malusLimit = 0;
+      result.bonusLimit = Number.POSITIVE_INFINITY;
     }else{
       result.any = {
-        base_bonus: 0,
+        baseBonus: 0,
         bonus: 0,
         malus: 0,
-        malus_limit: 0,
-        bonus_limit: Number.POSITIVE_INFINITY
+        malusLimit: 0,
+        bonusLimit: Number.POSITIVE_INFINITY
       };
     }
     var regex = new RegExp('^(!?)([+-]|)(([a-zA-Z_]+?|#)(\\[((#)|([a-zA-Z_]+?)|([a-zA-Z_]+)\\((#|[a-zA-Z_]+?)\\))])?)((\\2[+\\-*]?)([0-9]+))?;?$'.replace('#', Engine.quote(type)));
@@ -61,31 +61,31 @@ angular.module( 'd20-engine' ).factory( 'AbstractFeat', function( $log, Engine )
           if( toCheck && (multipleBonuses || toCheck === 'any') ) {
             if( multipleBonuses && !_.has( result, toCheck ) ) {
               result[ toCheck ] = {
-                base_bonus: 0,
+                baseBonus: 0,
                 bonus: 0,
                 malus: 0,
-                malus_limit: 0,
-                bonus_limit: Number.POSITIVE_INFINITY
+                malusLimit: 0,
+                bonusLimit: Number.POSITIVE_INFINITY
               };
             }
             var data = multipleBonuses ? result[ toCheck ] : result;
             if( bonusMatch[ 1 ] === '!' ) {
               if( bonusMatch[ 2 ] === '+' ) {
                 if(bonusMatch[ 13 ]) {
-                  data.bonus_limit = Math.min( data.bonus_limit, parseInt( bonusMatch[ 13 ] ) );
+                  data.bonusLimit = Math.min( data.bonusLimit, parseInt( bonusMatch[ 13 ] ) );
                 } else {
-                  data.bonus_limit = 0;
+                  data.bonusLimit = 0;
                 }
               } else if( bonusMatch[ 2 ] === '-' ) {
                 if(bonusMatch[ 13 ]) {
-                  data.malus_limit += parseInt( bonusMatch[ 13 ] );
+                  data.malusLimit += parseInt( bonusMatch[ 13 ] );
                 } else {
-                  data.malus_limit = Number.POSITIVE_INFINITY;
+                  data.malusLimit = Number.POSITIVE_INFINITY;
                 }
               }
             } else {
               if( bonusMatch[ 2 ] === '+' ) {
-                data.base_bonus += parseInt(bonusMatch[ 13 ]);
+                data.baseBonus += parseInt(bonusMatch[ 13 ]);
               } else if( bonusMatch[ 12 ] === '+' ) {
                 data.bonus = Math.max( data.bonus, parseInt(bonusMatch[ 13 ]) );
               } else if( bonusMatch[ 12 ] === '-' ) {
@@ -102,11 +102,11 @@ angular.module( 'd20-engine' ).factory( 'AbstractFeat', function( $log, Engine )
   AbstractFeat.prototype.bonus = function(creature, skill) {
     var matches = skill.match(/^([a-zA-Z_]+?|#)(\[((#|[a-zA-Z_]+?)|([a-zA-Z_]+)\((#|[a-zA-Z_]+?)\))])?$/);
     var result = {
-      base_bonus: 0,
+      baseBonus: 0,
       bonus: 0,
       malus: 0,
-      malus_limit: 0,
-      bonus_limit: 0
+      malusLimit: 0,
+      bonusLimit: 0
     };
     if(!matches) {
       $log.warn('Bad skill formatting (' + skill +') while computing bonus (' + this.id + '), returning 0.');
@@ -119,11 +119,11 @@ angular.module( 'd20-engine' ).factory( 'AbstractFeat', function( $log, Engine )
     if(multipleBonuses) {
       result = {
         any: {
-          base_bonus: 0,
+          baseBonus: 0,
           bonus: 0,
           malus: 0,
-          malus_limit: 0,
-          bonus_limit: 0
+          malusLimit: 0,
+          bonusLimit: 0
         }
       };
     }

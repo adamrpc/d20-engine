@@ -3,7 +3,7 @@
 describe('Factory: FeatLib', function() {
   beforeEach( module( 'd20-engine' ) );
   var featLib;
-  var abstractFeat;
+  var AbstractFeatConstructor;
   var skillLib = {};
   var log;
   beforeEach(module(function ($provide) {
@@ -11,13 +11,13 @@ describe('Factory: FeatLib', function() {
   }));
   beforeEach( inject( function( $log, FeatLib, AbstractFeat ) {
     featLib = FeatLib;
-    abstractFeat = AbstractFeat;
+    AbstractFeatConstructor = AbstractFeat;
     log = $log;
   } ) );
   it( 'Should checkRegistering', function() {
     expect( featLib.checkRegistering ).toBeDefined();
     spyOn(log, 'warn' ).and.callFake( console.debug );
-    var feat = new abstractFeat( 'test' );
+    var feat = new AbstractFeatConstructor( 'test' );
     skillLib.aaaa = true;
     featLib.register( 'test', feat );
     expect( log.warn.calls.count( ) ).toBe( 0 );
@@ -98,9 +98,9 @@ describe('Factory: FeatLib', function() {
   } );
   it( 'Should return single bonus', function() {
     expect( featLib.getBonus ).toBeDefined();
-    var aaaFeat = new abstractFeat('aaa');
+    var aaaFeat = new AbstractFeatConstructor('aaa');
     aaaFeat.bonuses = ['+ddd[eee(#)]+1', 'ddd[fff(#)]+2', 'ddd[ggg(#)]-3'];
-    var cccFeat = new abstractFeat('ccc');
+    var cccFeat = new AbstractFeatConstructor('ccc');
     cccFeat.bonuses = ['+ddd[eee(bbb)]+5', '!+ddd[fff(bbb)]+1', '!-ddd[ggg(bbb)]-2'];
     featLib.register('aaa', aaaFeat);
     featLib.register('ccc', cccFeat);
@@ -118,29 +118,29 @@ describe('Factory: FeatLib', function() {
       }
     };
     var result = featLib.getBonus(creature, 'ddd[eee(bbb)]');
-    expect(result.base_bonus ).toBe(6);
+    expect(result.baseBonus ).toBe(6);
     expect(result.bonus ).toBe(0);
     expect(result.malus ).toBe(0);
-    expect(result.bonus_limit ).toBe(Number.POSITIVE_INFINITY);
-    expect(result.malus_limit ).toBe(0);
+    expect(result.bonusLimit ).toBe(Number.POSITIVE_INFINITY);
+    expect(result.malusLimit ).toBe(0);
     result = featLib.getBonus(creature, 'ddd[fff(bbb)]');
-    expect(result.base_bonus ).toBe(0);
+    expect(result.baseBonus ).toBe(0);
     expect(result.bonus ).toBe(2);
     expect(result.malus ).toBe(0);
-    expect(result.bonus_limit ).toBe(1);
-    expect(result.malus_limit ).toBe(0);
+    expect(result.bonusLimit ).toBe(1);
+    expect(result.malusLimit ).toBe(0);
     result = featLib.getBonus(creature, 'ddd[ggg(bbb)]');
-    expect(result.base_bonus ).toBe(0);
+    expect(result.baseBonus ).toBe(0);
     expect(result.bonus ).toBe(0);
     expect(result.malus ).toBe(3);
-    expect(result.bonus_limit ).toBe(Number.POSITIVE_INFINITY);
-    expect(result.malus_limit ).toBe(2);
+    expect(result.bonusLimit ).toBe(Number.POSITIVE_INFINITY);
+    expect(result.malusLimit ).toBe(2);
   });
   it( 'Should return multiple bonuses', function() {
     expect( featLib.getBonus ).toBeDefined();
-    var aaaFeat = new abstractFeat('aaa');
+    var aaaFeat = new AbstractFeatConstructor('aaa');
     aaaFeat.bonuses = ['+ddd[eee(#)]+1', 'ddd[fff(#)]+2', 'ddd[ggg(#)]-3'];
-    var cccFeat = new abstractFeat('ccc');
+    var cccFeat = new AbstractFeatConstructor('ccc');
     cccFeat.bonuses = ['+ddd[eee(bbb)]+5', '!+ddd[fff(bbb)]+1', '!-ddd[ggg(bbb)]-2'];
     featLib.register('aaa', aaaFeat);
     featLib.register('ccc', cccFeat);
@@ -161,20 +161,20 @@ describe('Factory: FeatLib', function() {
     expect(result.eee ).toBeDefined();
     expect(result.fff ).toBeDefined();
     expect(result.ggg ).toBeDefined();
-    expect(result.eee.base_bonus ).toBe(6);
+    expect(result.eee.baseBonus ).toBe(6);
     expect(result.eee.bonus ).toBe(0);
     expect(result.eee.malus ).toBe(0);
-    expect(result.eee.bonus_limit ).toBe(Number.POSITIVE_INFINITY);
-    expect(result.eee.malus_limit ).toBe(0);
-    expect(result.fff.base_bonus ).toBe(0);
+    expect(result.eee.bonusLimit ).toBe(Number.POSITIVE_INFINITY);
+    expect(result.eee.malusLimit ).toBe(0);
+    expect(result.fff.baseBonus ).toBe(0);
     expect(result.fff.bonus ).toBe(2);
     expect(result.fff.malus ).toBe(0);
-    expect(result.fff.bonus_limit ).toBe(1);
-    expect(result.fff.malus_limit ).toBe(0);
-    expect(result.ggg.base_bonus ).toBe(0);
+    expect(result.fff.bonusLimit ).toBe(1);
+    expect(result.fff.malusLimit ).toBe(0);
+    expect(result.ggg.baseBonus ).toBe(0);
     expect(result.ggg.bonus ).toBe(0);
     expect(result.ggg.malus ).toBe(3);
-    expect(result.ggg.bonus_limit ).toBe(Number.POSITIVE_INFINITY);
-    expect(result.ggg.malus_limit ).toBe(2);
+    expect(result.ggg.bonusLimit ).toBe(Number.POSITIVE_INFINITY);
+    expect(result.ggg.malusLimit ).toBe(2);
   });
 });

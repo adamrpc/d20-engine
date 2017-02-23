@@ -129,7 +129,7 @@ angular.module( 'd20-engine' ).factory( 'Engine', function( $log ) {
     return this.registeredLibs[ type ].getValue(creature, name);
   };
   Engine.prototype.quote = function(str) {
-    return str.replace(/(?=[\/\\^$*+?.()|{}[\]])/g, "\\");
+    return str.replace(/(?=[\/\\^$*+?.()|{}[\]])/g, '\\');
   };
   var EngineProxy = new Proxy( Engine, {
     construct: function( Target, argumentsList ) {
