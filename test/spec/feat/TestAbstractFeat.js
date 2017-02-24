@@ -104,13 +104,14 @@ describe('Factory: AbstractFeat', function() {
         ddd: 1
       }
     } };
+    spyOn(log, 'debug' ).and.callFake(console.debug);
     var result = feat.bonus(creature, 'aaa[bbb(ccc)]');
-    checkBonus(result, 126, 79, 144, 156, 71);
+    checkBonus(result, 158, 79, 188, 204, 7);
     result = feat.bonus(creature, 'aaa[bbb(ddd)]');
-    checkBonus(result, 53, 59, 61, 67, 71);
+    checkBonus(result, 85, 59, 105, 115, 7);
     result = feat.bonus(creature, 'aaa[any(ccc)]');
     expect(result.any).toBeDefined();
-    checkBonus(result.any, 1, 2, 3, 5, 7);
+    checkBonus(result.any, 32, 37, 44, 48, 7);
     expect(result.bbb).toBeDefined();
     checkBonus(result.bbb, 126, 79, 144, 156, 71);
     expect(result.aaa).toBeUndefined();
@@ -118,7 +119,7 @@ describe('Factory: AbstractFeat', function() {
     expect(result.ddd).toBeUndefined();
     result = feat.bonus(creature, 'aaa[any(ddd)]');
     expect(result.any).toBeDefined();
-    checkBonus(result.any, 1, 2, 3, 5, 7);
+    checkBonus(result.any, 32, 37, 44, 48, 7);
     expect(result.bbb).toBeDefined();
     checkBonus(result.bbb, 53, 59, 61, 67, 71);
     expect(result.aaa).toBeUndefined();
@@ -126,19 +127,19 @@ describe('Factory: AbstractFeat', function() {
     expect(result.ddd).toBeUndefined();
     result = feat.bonus(creature, 'aaa[bbb(any)]');
     expect(result.any).toBeDefined();
-    checkBonus(result.any, 31, 37, 41, 43, 47);
+    checkBonus(result.any, 85, 59, 105, 115, 7);
     expect(result.ccc).toBeDefined();
     checkBonus(result.ccc, 73, 79, 83, 89, 91);
     expect(result.aaa).toBeUndefined();
     expect(result.bbb).toBeUndefined();
     expect(result.ddd).toBeUndefined();
     result = feat.bonus(creature, 'aaa[bbb]');
-    checkBonus(result, 31, 37, 41, 43, 47);
+    checkBonus(result, 32, 37, 44, 48, 7);
     result = feat.bonus(creature, 'aaa[ddd]');
-    checkBonus(result, 31, 37, 41, 43, 47);
+    checkBonus(result, 32, 37, 44, 48, 7);
     result = feat.bonus(creature, 'aaa[any]');
     expect(result.any).toBeDefined();
-    checkBonus(result.any, 12, 13, 20, 24, 7);
+    checkBonus(result.any, 32, 37, 44, 48, 7);
     expect(result.aaa).toBeUndefined();
     expect(result.bbb).toBeUndefined();
     expect(result.ccc).toBeUndefined();
@@ -165,9 +166,9 @@ describe('Factory: AbstractFeat', function() {
       }
     } };
     var result = feat.bonus(creature, 'aaa[bbb(ccc)]');
-    checkBonus(result, 53, 59, 61, 67, 71);
+    checkBonus(result, 54, 59, 64, 72, 7);
     result = feat.bonus(creature, 'aaa[bbb(ddd)]');
-    checkBonus(result, 53, 59, 61, 67, 71);
+    checkBonus(result, 54, 59, 64, 72, 7);
     result = feat.bonus(creature, 'aaa[any(ccc)]');
     expect(result.any).toBeDefined();
     checkBonus(result.any, 1, 2, 3, 5, 7);
@@ -186,15 +187,15 @@ describe('Factory: AbstractFeat', function() {
     expect(result.ddd).toBeUndefined();
     result = feat.bonus(creature, 'aaa[bbb(any)]');
     expect(result.any).toBeDefined();
-    checkBonus(result.any, 0, 0, 0, 0, Number.POSITIVE_INFINITY);
+    checkBonus(result.any, 54, 59, 64, 72, 7);
     expect(result.aaa).toBeUndefined();
     expect(result.bbb).toBeUndefined();
     expect(result.ccc).toBeUndefined();
     expect(result.ddd).toBeUndefined();
     result = feat.bonus(creature, 'aaa[bbb]');
-    checkBonus(result, 0, 0, 0, 0, Number.POSITIVE_INFINITY);
+    checkBonus(result, 1, 2, 3, 5, 7);
     result = feat.bonus(creature, 'aaa[ddd]');
-    checkBonus(result, 0, 0, 0, 0, Number.POSITIVE_INFINITY);
+    checkBonus(result, 1, 2, 3, 5, 7);
     result = feat.bonus(creature, 'aaa[any]');
     expect(result.any).toBeDefined();
     checkBonus(result.any, 1, 2, 3, 5, 7);

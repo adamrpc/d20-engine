@@ -47,8 +47,9 @@ angular.module( 'd20-engine' ).factory( 'AbstractFeat', function( $log, Engine )
           var bonusSkill2 = bonusMatch[ 7 ] ? bonusMatch[ 7 ] : (bonusMatch[ 8 ] ? bonusMatch[ 8 ] : bonusMatch[ 9 ]);
           var bonusSkill3 = bonusMatch[ 10 ];
           $log.debug(bonusSkill1, bonusSkill2, bonusSkill3, skill1, skill2, skill3);
-          if( bonusSkill1 === skill1 && bonusSkill2 !== skill1 && (!skill3 || bonusSkill2 !== skill3) && bonusSkill3 !== skill1 && (!skill2 || bonusSkill3 !== skill2)) {
-            if( (!skill2 || skill2 === 'any') && (!bonusSkill3 || bonusSkill3 === skill3)) {
+          if( bonusSkill1 === skill1 && bonusSkill2 !== skill1 && (!skill3 || !bonusSkill3 || bonusSkill2 !== skill3) && bonusSkill3 !== skill1 && (!skill2 || bonusSkill3 !== skill2)) {
+            $log.debug('IN 1', bonusSkill1, bonusSkill2, bonusSkill3, skill1, skill2, skill3);
+            if( skill2 === 'any' && bonusSkill3 === skill3) {
               toCheck = bonusSkill2 ? bonusSkill2 : 'any';
             } else if( bonusSkill2 === skill2 &&  bonusSkill3 !== skill2) {
               if(!skill3 || skill3 === 'any') {
@@ -56,6 +57,10 @@ angular.module( 'd20-engine' ).factory( 'AbstractFeat', function( $log, Engine )
               } else if(bonusSkill3 === skill3) {
                 toCheck = 'any';
               }
+            } else if( !bonusSkill3 && skill3 && bonusSkill2 === skill3 ) {
+              toCheck = 'any';
+            } else if( !bonusSkill3 &&  !bonusSkill2 ) {
+              toCheck = 'any';
             }
           }
           if( toCheck && (multipleBonuses || toCheck === 'any') ) {
@@ -127,10 +132,10 @@ angular.module( 'd20-engine' ).factory( 'AbstractFeat', function( $log, Engine )
         }
       };
     }
-    if(skill3 && skill3 !== 'any' && Engine.getValue('feat', creature, this.id + '[' + skill3 + ']') > 0) {
+    if(skill3 && Engine.getValue('feat', creature, this.id + '[' + skill3 + ']') > 0) {
       return this._checkBonus(skill3, creature, skill1, skill2, skill3 );
     }
-    if(skill2 && skill2 !== 'any' && Engine.getValue('feat', creature, this.id + '[' + skill2 + ']') > 0) {
+    if(skill2 && Engine.getValue('feat', creature, this.id + '[' + skill2 + ']') > 0) {
       return this._checkBonus(skill2, creature, skill1, skill2, skill3 );
     }
     if(skill1 && skill1 !== 'any' && Engine.getValue('feat', creature, this.id + '[' + skill1 + ']') > 0) {
